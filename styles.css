@@ -1,0 +1,611 @@
+:root {
+    --primary-color: #003366;
+    --secondary-color: #0066cc;
+    --accent-color: #00bfff;
+    --error-color: #dc3545;
+    --success-color: #28a745;
+    --warning-color: #ffc107;
+    --text-color: #333333;
+    --bg-color: #f0f2f5;
+    --white: #ffffff;
+    --border-dark: #000000;
+}
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.close-btn {
+    background-color: var(--error-color);
+    color: var(--white);
+    padding: 8px 15px;
+    border: 2px solid var(--border-dark);
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.close-btn:hover {
+    background-color: #c82333;
+    transform: translateY(-2px);
+}
+.button-group {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 20px;
+}
+body {
+    background-color: var(--bg-color);
+    margin: 0;
+    padding: 20px;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: Arial, sans-serif;
+}
+.container {
+    width: 100%;
+    max-width: 800px;
+    background-color: var(--white);
+    border: 3px solid var(--border-dark);
+    border-radius: 10px;
+    padding: 40px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+}
+.logo-section h1 {
+    color: var(--primary-color);
+    font-size: 56px;
+    margin: 0;
+    font-weight: bold;
+    letter-spacing: 3px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+.login-form {
+    max-width: 400px;
+    margin: 30px auto;
+    padding: 30px;
+    border: 2px solid var(--border-dark);
+    border-radius: 8px;
+    background-color: #f8f9fa;
+}
+.menu-buttons {
+    max-width: 400px;
+    margin: 0 auto;
+    gap: 20px;
+}
+.menu-btn {
+    padding: 20px;
+    margin: 10px 0;
+    font-size: 18px;
+    background-color: var(--accent-color);
+    color: var(--text-color);
+    border: 2px solid var(--border-dark);
+    border-radius: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.dashboard-header {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    border: 2px solid var(--border-dark);
+    margin-bottom: 30px;
+}
+.dashboard-header h2 {
+    font-size: 28px;
+    color: var(--primary-color);
+}
+.logout-btn {
+    background-color: var(--error-color);
+    color: var(--white);
+    padding: 12px 25px;
+    font-size: 16px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+/* Form inputs enhancement */
+.login-input {
+    background-color: var(--white);
+    padding: 15px;
+    font-size: 16px;
+}
+.login-input:focus {
+    outline: none;
+    border-color: var(--accent-color);
+}
+/* Table enhancement */
+table {
+    margin: 20px 0;
+    background-color: var(--white);
+}
+th {
+    background-color: var(--primary-color);
+    color: var(--white);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.login-form {
+    background-color: var(--white);
+    padding: 25px;
+    border: 2px solid var(--border-dark);
+    border-radius: 8px;
+    margin-top: 20px;
+}
+.login-form h2 {
+    color: var(--primary-color);
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 24px;
+}
+.form-group {
+    margin-bottom: 20px;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-color);
+    font-weight: bold;
+}
+.login-input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid var(--border-dark);
+    border-radius: 5px;
+    font-size: 16px;
+    margin-bottom: 15px;
+}
+.login-btn {
+    width: 100%;
+    padding: 15px;
+    background-color: var(--accent-color);
+    color: var(--text-color);
+    border: 2px solid var(--border-dark);
+    border-radius: 5px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+}
+/* Dashboard Styles */
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid var(--border-dark);
+}
+.dashboard-header h2 {
+    color: var(--primary-color);
+    margin: 0;
+    font-size: 24px;
+}
+/* Menu Buttons */
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.menu-btn {
+    padding: 15px;
+    background-color: var(--accent-color);
+    color: var(--text-color);
+    border: 2px solid var(--border-dark);
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+/* Logout Button */
+.logout-btn {
+    padding: 10px 20px;
+    background-color: var(--error-color);
+    color: var(--white);
+    border: 2px solid var(--border-dark);
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+/* Status Colors */
+.status-pending { color: var(--error-color); }
+.status-approved { color: var(--warning-color); }
+.status-paid { color: var(--success-color); }
+/* Tables */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    border: 2px solid var(--border-dark);
+}
+th, td {
+    padding: 12px;
+    text-align: left;
+    border: 1px solid var(--border-dark);
+}
+th {
+    background-color: var(--accent-color);
+    color: var(--text-color);
+    font-weight: bold;
+}
+.hidden {
+    display: none;
+}
+/* Content area styling */
+#employerContent {
+    margin-top: 30px;
+}
+#employerContent .section {
+    background-color: var(--white);
+    border: 2px solid var(--border-dark);
+    border-radius: 8px;
+    padding: 25px;
+    margin-bottom: 20px;
+}
+#employerContent h3 {
+    color: var(--primary-color);
+    font-size: 24px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+/* Form styling */
+.form-group {
+    margin-bottom: 15px;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: var(--text-color);
+}
+/* Table styling */
+.table-container {
+    overflow-x: auto;
+    margin-top: 20px;
+}
+.table-container table {
+    width: 100%;
+    border: 2px solid var(--border-dark);
+}
+.table-container th {
+    background-color: var(--primary-color);
+    color: var(--white);
+    padding: 12px;
+    text-align: left;
+}
+/* Table data styling */
+.table-container td {
+    padding: 12px 15px;
+    vertical-align: middle;
+}
+
+/* Amount column styling */
+.table-container td:nth-child(3) {
+    text-align: right;
+    font-family: monospace;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+/* Status column styling */
+.table-container td:nth-child(4) {
+    text-align: center;
+    font-weight: bold;
+}
+
+/* Empty table state */
+.table-container tbody:empty::after {
+    content: "No hay pagos registrados";
+    display: table-row;
+    text-align: center;
+    padding: 20px;
+    color: var(--text-color);
+    font-style: italic;
+}
+
+/* Table row hover effect */
+.table-container tbody tr:hover {
+    background-color: #f8f9fa;
+    transition: background-color 0.2s ease;
+}
+
+/* Status indicators */
+.status-pending {
+    color: var(--error-color);
+}
+
+.status-paid {
+    color: var(--success-color);
+}
+/* Payment button styles */
+.pay-btn {
+    background-color: var(--success-color);
+    color: var(--white);
+    padding: 8px 15px;
+    border: 1px solid var(--border-dark);
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: transform 0.2s ease;
+}
+.pay-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+/* Payment status styles */
+.status-pending {
+    color: var(--error-color);
+    font-weight: bold;
+}
+.status-paid {
+    color: var(--success-color);
+    font-weight: bold;
+}
+/* Table action column */
+.table-container td:last-child {
+    text-align: center;
+    width: 120px;
+}
+.login-form {
+    background-color: var(--white);
+    padding: 25px;
+    border: 2px solid var(--border-dark);
+    border-radius: 8px;
+    margin-top: 20px;
+}
+.login-form h2 {
+    color: var(--primary-color);
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 24px;
+}
+.form-group {
+    margin-bottom: 20px;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-color);
+    font-weight: bold;
+}
+.login-input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid var(--border-dark);
+    border-radius: 5px;
+    font-size: 16px;
+    margin-bottom: 15px;
+}
+.login-btn {
+    width: 100%;
+    padding: 15px;
+    background-color: var(--accent-color);
+    color: var(--text-color);
+    border: 2px solid var(--border-dark);
+    border-radius: 5px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+}
+/* Dashboard Styles */
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid var(--border-dark);
+}
+.dashboard-header h2 {
+    color: var(--primary-color);
+    margin: 0;
+    font-size: 24px;
+}
+/* Menu Buttons */
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.menu-btn {
+    padding: 15px;
+    background-color: var(--accent-color);
+    color: var(--text-color);
+    border: 2px solid var(--border-dark);
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+/* Logout Button */
+.logout-btn {
+    padding: 10px 20px;
+    background-color: var(--error-color);
+    color: var(--white);
+    border: 2px solid var(--border-dark);
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+/* Status Colors */
+.status-pending { color: var(--error-color); }
+.status-approved { color: var(--warning-color); }
+.status-paid { color: var(--success-color); }
+/* Tables */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    border: 2px solid var(--border-dark);
+}
+th, td {
+    padding: 12px;
+    text-align: left;
+    border: 1px solid var(--border-dark);
+}
+th {
+    background-color: var(--accent-color);
+    color: var(--text-color);
+    font-weight: bold;
+}
+.hidden {
+    display: none;
+}
+/* Content area styling */
+#employerContent {
+    margin-top: 30px;
+}
+#employerContent .section {
+    background-color: var(--white);
+    border: 2px solid var(--border-dark);
+    border-radius: 8px;
+    padding: 25px;
+    margin-bottom: 20px;
+}
+#employerContent h3 {
+    color: var(--primary-color);
+    font-size: 24px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+/* Form styling */
+.form-group {
+    margin-bottom: 15px;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: var(--text-color);
+}
+/* Table styling */
+.table-container {
+    /* Table container enhancements */
+    .table-container {
+        overflow-x: auto;
+        margin-top: 20px;
+        background-color: var(--white);
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    /* Table row hover effect */
+    .table-container tr:hover {
+        background-color: #f8f9fa;
+    }
+    /* Amount column alignment */
+    .table-container td:nth-child(3) {
+        text-align: right;
+        font-family: monospace;
+        font-size: 14px;
+    }
+    /* Status column styling */
+    .table-container td:nth-child(4) {
+        text-align: center;
+    }
+    /* Empty table message */
+    .empty-table-message {
+        text-align: center;
+        padding: 20px;
+        color: var(--text-color);
+        font-style: italic;
+    }
+    width: 100%;
+    border: 2px solid var(--border-dark);
+}
+.table-container th {
+    background-color: var(--primary-color);
+    color: var(--white);
+    padding: 12px;
+    text-align: left;
+}
+.table-container td {
+    padding: 12px;
+    border: 1px solid var(--border-dark);
+}
+/* Approve button styling */
+.approve-btn {
+    background-color: var(--success-color);
+    color: var(--white);
+    padding: 8px 15px;
+    border: 1px solid var(--border-dark);
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+/* Form validation styling */
+#paymentForm input:invalid {
+    border-color: var(--error-color);
+}
+.form-group small {
+    color: var(--error-color);
+    font-size: 12px;
+    margin-top: 5px;
+}
+/* Success message styling */
+.success-message {
+    background-color: var(--success-color);
+    color: var(--white);
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    text-align: center;
+    font-weight: bold;
+}
+/* Payment form container */
+.payment-form-container {
+    background-color: var(--white);
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+}
+
+/* Form input styling */
+.payment-input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid var(--border-dark);
+    border-radius: 5px;
+    font-size: 16px;
+    margin-bottom: 15px;
+    transition: border-color 0.3s ease;
+}
+
+.payment-input:focus {
+    border-color: var(--accent-color);
+    outline: none;
+}
+
+/* Submit button styling */
+.submit-payment {
+    width: 100%;
+    padding: 15px;
+    background-color: var(--success-color);
+    color: var(--white);
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.submit-payment:hover {
+    background-color: #218838;
+}
+
+/* Payment status indicators */
+.payment-status {
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.status-saved {
+    background-color: var(--success-color);
+    color: var(--white);
+}

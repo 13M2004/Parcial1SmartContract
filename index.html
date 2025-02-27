@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SGE TECH - Sistema de Pagos</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Login Screen -->
+        <div id="loginSection" class="section">
+            <div class="logo-section">
+                <h1>SGE TECH</h1>
+                <p>Sistema de Gestión de Empleados</p>
+            </div>
+            <div class="login-form">
+                <h2>Inicio de Sesión</h2>
+                <div class="form-group">
+                    <label for="userType">Tipo de Usuario:</label>
+                    <select id="userType" class="login-input" required>
+                        <option value="">Seleccione su rol</option>
+                        <option value="employer">Patrono</option>
+                        <option value="employee">Empleado</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="userId">ID de Usuario:</label>
+                    <input type="text" id="userId" class="login-input" placeholder="Ingrese su ID" required>
+                </div>
+                <button onclick="login()" class="login-btn">INGRESAR AL SISTEMA</button>
+            </div>
+        </div>
+
+        <!-- Employer Menu -->
+        <div id="employerDashboard" class="section hidden">
+            <div class="dashboard-header">
+                <h2>Panel de Control - Patrono</h2>
+                <button onclick="logout()" class="logout-btn">Cerrar Sesión</button>
+            </div>
+            <div class="menu-buttons">
+                <button onclick="showEmployerSection('newPayment')" class="menu-btn">Registrar Nuevo Pago</button>
+                <button onclick="showEmployerSection('pendingPayments')" class="menu-btn">Pagos Pendientes</button>
+                <button onclick="showEmployerSection('paymentHistory')" class="menu-btn">Historial de Pagos</button>
+            </div>
+        </div>
+
+        <!-- Employee Menu -->
+        <div id="employeeDashboard" class="section hidden">
+            <div class="dashboard-header">
+                <h2>Panel de Control - Empleado</h2>
+                <button onclick="logout()" class="logout-btn">Cerrar Sesión</button>
+            </div>
+            <div class="menu-buttons">
+                <button onclick="showEmployeeSection('viewPayments')" class="menu-btn">Mis Pagos</button>
+                <button onclick="showEmployeeSection('paymentStatus')" class="menu-btn">Estado de Pagos</button>
+            </div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
+
