@@ -2,60 +2,95 @@ import LinkedList from './LinkedList.js';
 
 class SmartContract {
    constructor() {
-       this.transactions = new LinkedList();
-       this.employees = {};
-       this.employers = {};
-       this.balances = {};
+       this.transacciones = new LinkedList();
+       this.empleados = {};
+       this.empleadores = {};
+       this.saldos = {};
    }
 
-   // Register a new employee
-   registerEmployee(id, name) {
-       this.employees[id] = { name, payments: [] };
-       this.balances[id] = 0;
+   // Registrar un nuevo empleado
+   registrarEmpleado(id, nombre) {
+       this.empleados[id] = { nombre, pagos: [] };
+       this.saldos[id] = 0;
        return true;
    }
 
-   // Register a new employer
-   registerEmployer(id, name) {
-       this.employers[id] = { name, pendingPayments: [] };
-       this.balances[id] = 0;
+   // Registrar un nuevo empleador
+   registrarEmpleador(id, nombre) {
+       this.empleadores[id] = { nombre, pagosPendientes: [] };
+       this.saldos[id] = 0;
        return true;
    }
 
-   // Create a new pending payment
-   createPendingPayment(employerId, employeeId, amount, date, conditions) {
+   // Crear un nuevo pago pendiente
+   crearPagoPendiente(idEmpleador, idEmpleado, monto, fecha, condiciones) {
        try {
-           if (!this.employers[employerId] || !this.employees[employeeId]) {
+           if (!this.empleadores[idEmpleador] || !this.empleados[idEmpleado]) {
                throw new Error("Empleador o empleado no registrado");
            }
 
-           if (amount <= 0) {
+           if (monto <= 0) {
                throw new Error("El monto debe ser mayor a 0");
            }
 
-           const payment = {
+           const pago = {
                id: Date.now(),
-               employerId,
-               employeeId,
-               amount,
-               date,
-               conditions,
-               status: "Pendiente",
-               createdAt: new Date()
+               idEmpleador,
+               idEmpleado,
+               monto,
+               fecha,
+               condiciones,
+               estado: "Pendiente",
+               fechaCreacion: new Date()
            };
 
-           this.transactions.addTransaction(payment);
+           this.transacciones.agregarTransaccion(pago);
            return true;
        } catch (error) {
-           console.error('Error en createPendingPayment:', error);
+           console.error('Error en crearPagoPendiente:', error);
            return false;
        }
    }
 
-   // Get payments by employee
-   getEmployeePayments(employeeId) {
-       if (!this.employees[employeeId]) return [];
-       return this.transactions.displayTransactions().filter(payment => payment.employeeId === employeeId);
+   // Obtener pagos por empleado
+   obtenerPagosEmpleado(idEmpleado) {
+       if (!this.empleados[idEmpleado]) return [];
+       return this.transacciones.mostrarTransacciones().filter(pago => pago.idEmpleado === idEmpleado);
+   }
+
+   // Obtener todos los pagos pendientes
+   obtenerPagosPendientes() {
+       return this.transacciones.obtenerPagosPendientes();
+   }
+
+   // Obtener todos los pagos realizados
+   obtenerPagosRealizados() {
+       return this.transacciones.obtenerPagosRealizados();
+   }
+
+   // Actualizar estado de pago
+   actualizarEstadoPago(idPago, nuevoEstado) {
+       return this.transacciones.actualizarEstadoPago(idPago, nuevoEstado);
+   }
+
+   // Obtener información del empleado
+   obtenerInfoEmpleado(idEmpleado) {
+       return this.empleados[idEmpleado] || null;
+   }
+
+   // Obtener información del empleador
+   obtenerInfoEmpleador(idEmpleador) {
+       return this.empleadores[idEmpleador] || null;
+   }
+
+   // Verificar existencia de empleado
+   existeEmpleado(idEmpleado) {
+       return !!this.empleados[idEmpleado];
+   }
+
+   // Verificar existencia de empleador
+   existeEmpleador(idEmpleador) {
+       return !!this.empleadores[idEmpleador];
    }
 }
 

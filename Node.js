@@ -1,7 +1,7 @@
-class Node {
-    constructor(data) {
-        this.data = data; // Datos de la transacción
-        this.next = null; // Referencia al siguiente nodo
+class Nodo {
+    constructor(datos) {
+        this.datos = datos;
+        this.siguiente = null;
     }
 }
-export default Node;
+export default Nodo;

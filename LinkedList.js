@@ -2,77 +2,77 @@ import Node from './Node.js';
 
 class LinkedList {
     constructor() {
-        this.head = null;
-        this.loadFromStorage(); // Load existing data when creating new instance
+        this.cabeza = null;
+        this.cargarDeAlmacenamiento();
     }
 
-    addTransaction(data) {
-        const newNode = new Node(data);
-        if (!this.head) {
-            this.head = newNode;
+    agregarTransaccion(datos) {
+        const nuevoNodo = new Node(datos);
+        if (!this.cabeza) {
+            this.cabeza = nuevoNodo;
         } else {
-            let current = this.head;
-            while (current.next) {
-                current = current.next;
+            let actual = this.cabeza;
+            while (actual.siguiente) {
+                actual = actual.siguiente;
             }
-            current.next = newNode;
+            actual.siguiente = nuevoNodo;
         }
-        this.saveToStorage(); // Save after adding new transaction
+        this.guardarEnAlmacenamiento();
     }
 
-    updatePaymentStatus(id, newStatus) {
-        let current = this.head;
-        while (current) {
-            if (current.data.id === id) {
-                current.data.status = newStatus;
-                this.saveToStorage(); // Save after updating status
+    actualizarEstadoPago(id, nuevoEstado) {
+        let actual = this.cabeza;
+        while (actual) {
+            if (actual.datos.id === id) {
+                actual.datos.estado = nuevoEstado;
+                this.guardarEnAlmacenamiento();
                 return true;
             }
-            current = current.next;
+            actual = actual.siguiente;
         }
         return false;
     }
 
-    displayTransactions() {
-        let current = this.head;
-        const transactionsArray = [];
-        while (current) {
-            transactionsArray.push(current.data);
-            current = current.next;
+    mostrarTransacciones() {
+        let actual = this.cabeza;
+        const arregloTransacciones = [];
+        while (actual) {
+            arregloTransacciones.push(actual.datos);
+            actual = actual.siguiente;
         }
-        return transactionsArray;
+        return arregloTransacciones;
     }
 
-    saveToStorage() {
-        const data = this.displayTransactions();
-        localStorage.setItem('paymentsList', JSON.stringify(data));
+    guardarEnAlmacenamiento() {
+        const datos = this.mostrarTransacciones();
+        localStorage.setItem('listaPagos', JSON.stringify(datos));
     }
 
-    loadFromStorage() {
-        const data = localStorage.getItem('paymentsList');
-        if (data) {
-            const transactions = JSON.parse(data);
-            transactions.forEach(transaction => {
-                const newNode = new Node(transaction);
-                if (!this.head) {
-                    this.head = newNode;
+    cargarDeAlmacenamiento() {
+        const datos = localStorage.getItem('listaPagos');
+        if (datos) {
+            const transacciones = JSON.parse(datos);
+            transacciones.forEach(transaccion => {
+                const nuevoNodo = new Node(transaccion);
+                if (!this.cabeza) {
+                    this.cabeza = nuevoNodo;
                 } else {
-                    let current = this.head;
-                    while (current.next) {
-                        current = current.next;
+                    let actual = this.cabeza;
+                    while (actual.siguiente) {
+                        actual = actual.siguiente;
                     }
-                    current.next = newNode;
+                    actual.siguiente = nuevoNodo;
                 }
             });
         }
     }
 
-    getPendingPayments() {
-        return this.displayTransactions().filter(payment => payment.status === 'Pendiente');
+    obtenerPagosPendientes() {
+        return this.mostrarTransacciones().filter(pago => pago.estado === 'Pendiente');
     }
 
-    getPaidPayments() {
-        return this.displayTransactions().filter(payment => payment.status === 'Pagado');
+    obtenerPagosRealizados() {
+        return this.mostrarTransacciones().filter(pago => pago.estado === 'Pagado');
     }
 }
 

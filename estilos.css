@@ -1,0 +1,178 @@
+/* Variables globales del sistema */
+:root {
+    --color-primario: #003366;
+    --color-secundario: #0066cc;
+    --color-acento: #00bfff;
+    --color-error: #dc3545;
+    --color-exito: #28a745;
+    --color-advertencia: #ffc107;
+    --color-texto: #333333;
+    --color-fondo: #f0f2f5;
+    --blanco: #ffffff;
+    --borde-oscuro: #000000;
+}
+
+/* Contenedor Principal con Bordes */
+.contenedor-principal {
+    max-width: 1200px;
+    margin: 50px auto;
+    padding: 30px;
+    border: 2px solid var(--borde-oscuro);
+    border-radius: 10px;
+    background-color: var(--blanco);
+}
+
+/* Contenedor Interno */
+.contenedor-interno {
+    border: 2px solid var(--borde-oscuro);
+    border-radius: 8px;
+    padding: 25px;
+    margin: 20px 0;
+}
+
+/* Mejoras en Tablas */
+.contenedor-tabla {
+    margin: 20px 0;
+    border: 2px solid var(--borde-oscuro);
+    border-radius: 8px;
+    overflow-x: auto;
+    background-color: var(--blanco);
+}
+
+.contenedor-tabla table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.contenedor-tabla th {
+    background-color: var(--color-primario);
+    color: var(--blanco);
+    padding: 15px;
+    text-align: left;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.contenedor-tabla td {
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
+}
+
+.contenedor-tabla tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* Estados Mejorados */
+.estado-pendiente {
+    color: var(--color-error);
+    font-weight: bold;
+}
+
+.estado-aprobado {
+    color: var(--color-advertencia);
+    font-weight: bold;
+}
+
+.estado-pagado {
+    color: var(--color-exito);
+    font-weight: bold;
+}
+
+/* Formularios Mejorados */
+.formulario-pago {
+    background-color: var(--blanco);
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.grupo-formulario input,
+.grupo-formulario select {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid var(--borde-oscuro);
+    border-radius: 5px;
+    transition: border-color 0.3s ease;
+}
+
+.grupo-formulario input:hover,
+.grupo-formulario input:focus,
+.grupo-formulario select:hover,
+.grupo-formulario select:focus {
+    border-color: var(--color-acento);
+}
+
+/* Botones Mejorados */
+.boton-pdf {
+    background-color: var(--color-acento);
+    color: var(--color-texto);
+    padding: 8px 15px;
+    border: 1px solid var(--borde-oscuro);
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.boton-pdf:hover {
+    background-color: var(--color-primario);
+    color: var(--blanco);
+    transform: translateY(-2px);
+}
+
+/* Mensaje cuando no hay datos */
+.tabla-vacia {
+    text-align: center;
+    padding: 20px;
+    color: var(--color-texto);
+    font-style: italic;
+}
+/* Estilos para la visualización de boletas */
+.boleta-preview {
+    border: 2px solid var(--color-primario);
+    border-radius: 8px;
+    margin: 20px auto;
+    max-width: 600px;
+    background-color: var(--blanco);
+}
+
+.boleta-header {
+    background-color: var(--color-primario);
+    color: var(--blanco);
+    padding: 20px;
+    text-align: center;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+}
+
+.boleta-header h2 {
+    font-size: 28px;
+    margin: 0;
+}
+
+.boleta-content {
+    padding: 20px;
+    border-bottom: 1px solid var(--borde-oscuro);
+}
+
+.boleta-details {
+    border: 1px solid var(--color-primario);
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 4px;
+}
+
+.boleta-monto {
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--color-primario);
+    margin: 10px 0;
+}
+
+.boleta-estado {
+    color: var(--color-exito);
+    font-weight: bold;
+    text-align: right;
+}

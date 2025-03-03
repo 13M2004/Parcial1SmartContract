@@ -4,60 +4,127 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SGE TECH - Sistema de Pagos</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="estilos.css">
 </head>
 <body>
-    <div class="container">
-        <!-- Login Screen -->
-        <div id="loginSection" class="section">
-            <div class="logo-section">
-                <h1>SGE TECH</h1>
-                <p>Sistema de Gestión de Empleados</p>
-            </div>
-            <div class="login-form">
-                <h2>Inicio de Sesión</h2>
-                <div class="form-group">
-                    <label for="userType">Tipo de Usuario:</label>
-                    <select id="userType" class="login-input" required>
-                        <option value="">Seleccione su rol</option>
-                        <option value="employer">Patrono</option>
-                        <option value="employee">Empleado</option>
-                    </select>
+    <!-- Pantalla de Inicio de Sesión -->
+    <div id="pantallaLogin" class="pantalla">
+        <div class="contenedor-borde-externo">
+            <div class="contenedor-borde-interno">
+                <h1 class="titulo-principal">SGE TECH</h1>
+                <p class="subtitulo">Sistema de Gestión de Empleados</p>
+                
+                <div class="formulario-login">
+                    <h2>Inicio de Sesión</h2>
+                    <div class="grupo-formulario">
+                        <label for="tipoUsuario">Tipo de Usuario:</label>
+                        <select id="tipoUsuario" required>
+                            <option value="">Seleccione su rol</option>
+                            <option value="patrono">Patrono</option>
+                            <option value="empleado">Empleado</option>
+                        </select>
+                    </div>
+                    <div class="grupo-formulario">
+                        <label for="idUsuario">ID de Usuario:</label>
+                        <input type="text" id="idUsuario" placeholder="Ingrese su ID" required>
+                    </div>
+                    <button onclick="iniciarSesion()" class="boton-principal">INGRESAR AL SISTEMA</button>
                 </div>
-                <div class="form-group">
-                    <label for="userId">ID de Usuario:</label>
-                    <input type="text" id="userId" class="login-input" placeholder="Ingrese su ID" required>
-                </div>
-                <button onclick="login()" class="login-btn">INGRESAR AL SISTEMA</button>
-            </div>
-        </div>
-
-        <!-- Employer Menu -->
-        <div id="employerDashboard" class="section hidden">
-            <div class="dashboard-header">
-                <h2>Panel de Control - Patrono</h2>
-                <button onclick="logout()" class="logout-btn">Cerrar Sesión</button>
-            </div>
-            <div class="menu-buttons">
-                <button onclick="showEmployerSection('newPayment')" class="menu-btn">Registrar Nuevo Pago</button>
-                <button onclick="showEmployerSection('pendingPayments')" class="menu-btn">Pagos Pendientes</button>
-                <button onclick="showEmployerSection('paymentHistory')" class="menu-btn">Historial de Pagos</button>
-            </div>
-        </div>
-
-        <!-- Employee Menu -->
-        <div id="employeeDashboard" class="section hidden">
-            <div class="dashboard-header">
-                <h2>Panel de Control - Empleado</h2>
-                <button onclick="logout()" class="logout-btn">Cerrar Sesión</button>
-            </div>
-            <div class="menu-buttons">
-                <button onclick="showEmployeeSection('viewPayments')" class="menu-btn">Mis Pagos</button>
-                <button onclick="showEmployeeSection('paymentStatus')" class="menu-btn">Estado de Pagos</button>
             </div>
         </div>
     </div>
-    <script src="app.js"></script>
+
+ 
+        <div class="contenedor-borde-externo">
+            <!-- Panel del Patrono -->
+            <div id="panelPatrono" class="panel-sistema">
+                <div class="panel-header">
+                    <h2 class="titulo-panel">Panel de Control - Patrono</h2>
+                    <button onclick="cerrarSesion()" class="boton-cerrar-sesion">CERRAR SESIÓN</button>
+                </div>
+                <div class="menu-opciones">
+                    <button onclick="mostrarSeccion('registroPago')" class="boton-menu">REGISTRAR NUEVO PAGO</button>
+                    <button onclick="mostrarSeccion('pagosPendientes')" class="boton-menu">PAGOS PENDIENTES</button>
+                    <button onclick="mostrarSeccion('historialPagos')" class="boton-menu">HISTORIAL DE PAGOS</button>
+                </div>
+            </div>
+            <!-- Panel del Empleado -->
+            <div id="panelEmpleado" class="panel-sistema oculto">
+                <div class="panel-header">
+                    <h2 class="titulo-panel">Panel de Control - Empleado</h2>
+                    <button onclick="cerrarSesion()" class="boton-cerrar-sesion">CERRAR SESIÓN</button>
+                </div>
+                <div class="menu-opciones">
+                    <button onclick="mostrarSeccion('misPagos')" class="boton-menu">MIS PAGOS</button>
+                    <button onclick="mostrarSeccion('estadoPagos')" class="boton-menu">ESTADO DE PAGOS</button>
+                </div>
+            </div>
+        </div>
+    
+
+    <!-- Pantalla Registro de Pago -->
+    <div id="pantallaRegistroPago" class="pantalla oculto">
+        <div class="contenedor-borde-externo">
+            <h2>Registro de Nuevo Pago</h2>
+            <form id="formularioPago" onsubmit="registrarPago(event)">
+                <div class="grupo-formulario">
+                    <label for="idEmpleado">ID Empleado:</label>
+                    <input type="text" id="idEmpleado" required>
+                </div>
+                <div class="grupo-formulario">
+                    <label for="monto">Monto:</label>
+                    <input type="number" id="monto" step="0.01" required>
+                </div>
+                <div class="grupo-formulario">
+                    <label for="asistencia">Asistencia (%):</label>
+                    <input type="number" id="asistencia" min="0" max="100" required>
+                </div>
+                <div class="grupo-formulario">
+                    <label for="horas">Horas Trabajadas:</label>
+                    <input type="number" id="horas" required>
+                </div>
+                <button type="submit" class="boton-principal">Registrar Pago</button>
+            </form>
+            <button onclick="volverPatrono()" class="boton-secundario">Volver</button>
+        </div>
+    </div>
+
+    <!-- Pantalla Pagos Pendientes -->
+    <div id="pantallaPagosPendientes" class="pantalla oculto">
+        <div class="contenedor-borde-externo">
+            <h2>Pagos Pendientes</h2>
+            <div class="contenedor-tabla">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>FECHA</th>
+                            <th>EMPLEADO</th>
+                            <th>MONTO</th>
+                            <th>DETALLES</th>
+                            <th>ACCIONES</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaPagosPendientes"></tbody>
+                </table>
+            </div>
+            <button onclick="volverPatrono()" class="boton-secundario">Volver</button>
+        </div>
+    </div>
+
+    <!-- Pantalla Principal Empleado -->
+    <div id="pantallaEmpleado" class="pantalla oculto">
+        <div class="contenedor-borde-externo">
+            <div class="encabezado">
+                <h2>Panel de Control - Empleado</h2>
+                <button onclick="cerrarSesion()" class="boton-cerrar">Cerrar Sesión</button>
+            </div>
+            <div class="menu-botones">
+                <button onclick="mostrarPantalla('misPagos')" class="boton-menu">MIS PAGOS</button>
+                <button onclick="mostrarPantalla('estadoPagos')" class="boton-menu">ESTADO DE PAGOS</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="aplicacion.js"></script>
 </body>
 </html>
-
