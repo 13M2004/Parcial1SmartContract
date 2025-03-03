@@ -36,54 +36,75 @@ function iniciarSesion() {
     }
 
     if (usuarios[tipoUsuario] && usuarios[tipoUsuario][idUsuario]) {
-        const usuario = usuarios[tipoUsuario][idUsuario];
+        // Ocultar login con animación
+        const loginSection = document.getElementById('seccionLogin');
+        loginSection.style.opacity = '0';
+        loginSection.style.transform = 'translateY(-20px)';
+
+        setTimeout(() => {
+            loginSection.classList.add('oculto');
+            
+            // Mostrar panel correspondiente con animación
+            const panel = tipoUsuario === 'patrono' ? 
+                document.getElementById('panelPatrono') : 
+                document.getElementById('panelEmpleado');
+            
+            panel.classList.remove('oculto');
+            setTimeout(() => {
+                panel.classList.add('visible');
+                cargarMenuInicial(tipoUsuario);
+            }, 100);
+        }, 300);
+
         localStorage.setItem('idUsuarioActual', idUsuario);
         localStorage.setItem('tipoUsuarioActual', tipoUsuario);
-        
-        document.getElementById('seccionLogin').classList.add('oculto');
-        
-        // Mostrar solo el panel correspondiente al tipo de usuario
-        if (tipoUsuario === 'patrono') {
-            document.getElementById('panelPatrono').classList.remove('oculto');
-            document.getElementById('panelEmpleado').classList.add('oculto');
-            cargarMenuPatrono();
-        } else {
-            document.getElementById('panelEmpleado').classList.remove('oculto');
-            document.getElementById('panelPatrono').classList.add('oculto');
-            cargarMenuEmpleado();
-        }
-        
-        mostrarMensajeLogin(`Bienvenido ${usuario.nombre}`, 'exito');
     } else {
         mostrarMensajeLogin('Usuario o tipo de usuario incorrecto', 'error');
     }
 }
 
-function cargarMenuPatrono() {
-    const contenidoPatrono = document.getElementById('contenidoPatrono');
-    contenidoPatrono.innerHTML = `
-        <div class="menu-principal">
-            <h2>Panel de Control - Patrono</h2>
-            <div class="menu-botones">
-                <button onclick="mostrarSeccionPatrono('nuevoPago')" class="btn-action">REGISTRAR NUEVO PAGO</button>
-                <button onclick="mostrarSeccionPatrono('pagosPendientes')" class="btn-action">PAGOS PENDIENTES</button>
-                <button onclick="mostrarSeccionPatrono('historial')" class="btn-action">HISTORIAL DE PAGOS</button>
+function cargarMenuInicial(tipoUsuario) {
+    const contenedor = tipoUsuario === 'patrono' ? 
+        document.getElementById('contenidoPatrono') : 
+        document.getElementById('contenidoEmpleado');
+    
+    if (tipoUsuario === 'patrono') {
+        contenedor.innerHTML = `
+            <div class="menu-principal">
+                <h2>Panel de Control - Patrono</h2>
+                <div class="menu-botones">
+                    <button onclick="mostrarSeccionPatrono('nuevoPago')" class="btn-menu">Registrar Nuevo Pago</button>
+                    <button onclick="mostrarSeccionPatrono('pagosPendientes')" class="btn-menu">Pagos Pendientes</button>
+                    <button onclick="mostrarSeccionPatrono('historial')" class="btn-menu">Historial de Pagos</button>
+                </div>
+                <button onclick="cerrarSesion()" class="btn-logout">Cerrar Sesión</button>
             </div>
-        </div>
-    `;
+        `;
+    } else {
+        contenedor.innerHTML = `
+            <div class="menu-principal">
+                <h2>Panel de Control - Empleado</h2>
+                <div class="menu-botones">
+                    <button onclick="mostrarSeccionEmpleado('verPagos')" class="btn-menu">Ver Mis Pagos</button>
+                    <button onclick="mostrarSeccionEmpleado('boletas')" class="btn-menu">Boletas de Pago</button>
+                </div>
+                <button onclick="cerrarSesion()" class="btn-logout">Cerrar Sesión</button>
+            </div>
+        `;
+    }
 }
-
-function cargarMenuEmpleado() {
-    const contenidoEmpleado = document.getElementById('contenidoEmpleado');
-    contenidoEmpleado.innerHTML = `
-        <div class="menu-principal">
-            <h2>Panel de Control - Empleado</h2>
-            <div class="menu-botones">
-                <button onclick="mostrarSeccionEmpleado('verPagos')" class="btn-action">VER MIS PAGOS</button>
-                <button onclick="mostrarSeccionEmpleado('boletas')" class="btn-action">MIS BOLETAS</button>
-            </div>
-        </div>
-    `;
+function cargarNuevaVista(vista) {
+    const contenedor = document.getElementById('contenido-principal');
+    contenedor.querySelector('.contenido-dinamico').classList.remove('visible');
+    
+    setTimeout(() => {
+        // Cargar nuevo contenido
+        mostrarSeccionCorrespondiente(vista);
+        
+        setTimeout(() => {
+            contenedor.querySelector('.contenido-dinamico').classList.add('visible');
+        }, 100);
+    }, 300);
 }
 function mostrarMensajeLogin(mensaje, tipo) {
     const contenedor = document.getElementById('mensajeLogin');

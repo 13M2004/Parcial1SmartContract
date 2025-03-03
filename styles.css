@@ -5,35 +5,118 @@
     --error-color: #f44336;
     --text-color: #333;
     --background-color: #f5f5f5;
+    --spacing-unit: 20px;
+}
+
+/* Estilos para transiciones de pantallas */
+.panel {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.5s ease;
+}
+
+.panel.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Espaciado entre elementos */
+.seccion {
+    margin-bottom: var(--spacing-unit);
+}
+
+.btn-action, 
+.btn-primary, 
+.boton-boleta {
+    margin-bottom: var(--spacing-unit);
+}
+
+/* Animaciones para cambios de contenido */
+.contenido-dinamico {
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+}
+
+.contenido-dinamico.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Ajuste de espaciado en tablas */
+.contenedor-tabla {
+    margin: var(--spacing-unit) 0;
+}
+
+tr {
+    transition: background-color 0.3s ease;
+}
+
+/* Transición suave para botones */
+.nav-button {
+    transition: all 0.3s ease;
+    margin: calc(var(--spacing-unit) / 2) 0;
 }
 .menu-principal {
-    text-align: center;
-    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px;
+    max-width: 600px;
+    margin: 0 auto;
 }
 
 .menu-principal h2 {
     color: var(--primary-color);
+    font-size: 1.8em;
     margin-bottom: 30px;
+    text-align: center;
 }
-
+.menu-principal {
+    display: flex;
+    flex-direction: row; /* Cambiado a row para menú horizontal */
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    border-bottom: 2px solid var(--secondary-color);
+    margin-bottom: 20px;
+}
 .menu-botones {
     display: flex;
-    flex-direction: column;
-    gap: 15px;
-    max-width: 400px;
-    margin: 0 auto;
+    flex-direction: row; /* Menú horizontal */
+    gap: 10px;
+    justify-content: center;
 }
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-}
-.panel {
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    padding: 20px;
+.btn-menu {
+    background-color: var(--secondary-color);
+    color: white;
+    padding: 10px 15px;
     border: 2px solid black;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    min-width: 120px;
+}
+.contenedor-tabla {
+    margin-top: 10px;
+    border: 2px solid black;
+    border-radius: 5px;
+    padding: 15px;
+}
+
+/* Ajuste para el contenido dinámico */
+.contenido-dinamico {
+    margin-top: 20px;
+}
+
+/* Ajuste para el botón de cerrar sesión */
+.btn-logout {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: auto;
+    min-width: 120px;
 }
 .seccion-header {
     display: flex;
