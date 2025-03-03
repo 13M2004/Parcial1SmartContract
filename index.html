@@ -4,127 +4,66 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SGE TECH - Sistema de Pagos</title>
-    <link rel="stylesheet" href="estilos.css">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- Pantalla de Inicio de Sesión -->
-    <div id="pantallaLogin" class="pantalla">
-        <div class="contenedor-borde-externo">
-            <div class="contenedor-borde-interno">
-                <h1 class="titulo-principal">SGE TECH</h1>
-                <p class="subtitulo">Sistema de Gestión de Empleados</p>
+    <div class="container">
+        <!-- Sección de Login -->
+        <div id="seccionLogin" class="login-section">
+            <div class="login-box">
+                <h1>SGE TECH</h1>
+                <p class="subtitle">Sistema de Gestión de Empleados</p>
                 
-                <div class="formulario-login">
+                <div class="login-form">
                     <h2>Inicio de Sesión</h2>
-                    <div class="grupo-formulario">
-                        <label for="tipoUsuario">Tipo de Usuario:</label>
-                        <select id="tipoUsuario" required>
-                            <option value="">Seleccione su rol</option>
+                    <div class="form-group">
+                        <label>Tipo de Usuario:</label>
+                        <select id="tipoUsuario">
+                            <option value="">Seleccione...</option>
                             <option value="patrono">Patrono</option>
                             <option value="empleado">Empleado</option>
                         </select>
                     </div>
-                    <div class="grupo-formulario">
-                        <label for="idUsuario">ID de Usuario:</label>
-                        <input type="text" id="idUsuario" placeholder="Ingrese su ID" required>
+                    <div class="form-group">
+                        <label>ID de Usuario:</label>
+                        <input type="text" id="idUsuario" placeholder="Ingrese su ID">
                     </div>
-                    <button onclick="iniciarSesion()" class="boton-principal">INGRESAR AL SISTEMA</button>
+                    <button onclick="iniciarSesion()" class="btn-primary">INGRESAR AL SISTEMA</button>
+                    <div id="mensajeLogin"></div>
                 </div>
             </div>
         </div>
-    </div>
 
- 
-        <div class="contenedor-borde-externo">
-            <!-- Panel del Patrono -->
-            <div id="panelPatrono" class="panel-sistema">
-                <div class="panel-header">
-                    <h2 class="titulo-panel">Panel de Control - Patrono</h2>
-                    <button onclick="cerrarSesion()" class="boton-cerrar-sesion">CERRAR SESIÓN</button>
-                </div>
-                <div class="menu-opciones">
-                    <button onclick="mostrarSeccion('registroPago')" class="boton-menu">REGISTRAR NUEVO PAGO</button>
-                    <button onclick="mostrarSeccion('pagosPendientes')" class="boton-menu">PAGOS PENDIENTES</button>
-                    <button onclick="mostrarSeccion('historialPagos')" class="boton-menu">HISTORIAL DE PAGOS</button>
-                </div>
+        <!-- Panel del Patrono -->
+        <div id="panelPatrono" class="panel oculto">
+            <div class="panel-header">
+                <h2>Panel de Control - Patrono</h2>
+                <button onclick="cerrarSesion()" class="btn-logout">CERRAR SESIÓN</button>
             </div>
-            <!-- Panel del Empleado -->
-            <div id="panelEmpleado" class="panel-sistema oculto">
-                <div class="panel-header">
-                    <h2 class="titulo-panel">Panel de Control - Empleado</h2>
-                    <button onclick="cerrarSesion()" class="boton-cerrar-sesion">CERRAR SESIÓN</button>
-                </div>
-                <div class="menu-opciones">
-                    <button onclick="mostrarSeccion('misPagos')" class="boton-menu">MIS PAGOS</button>
-                    <button onclick="mostrarSeccion('estadoPagos')" class="boton-menu">ESTADO DE PAGOS</button>
-                </div>
+            
+            <!-- Menú de navegación -->
+            <div class="nav-menu">
+                <button onclick="cargarVista('nuevoPago')" class="nav-button">REGISTRAR PAGO</button>
+                <button onclick="cargarVista('pagosPendientes')" class="nav-button">PAGOS PENDIENTES</button>
+                <button onclick="cargarVista('historial')" class="nav-button">HISTORIAL</button>
             </div>
-        </div>
-    
 
-    <!-- Pantalla Registro de Pago -->
-    <div id="pantallaRegistroPago" class="pantalla oculto">
-        <div class="contenedor-borde-externo">
-            <h2>Registro de Nuevo Pago</h2>
-            <form id="formularioPago" onsubmit="registrarPago(event)">
-                <div class="grupo-formulario">
-                    <label for="idEmpleado">ID Empleado:</label>
-                    <input type="text" id="idEmpleado" required>
-                </div>
-                <div class="grupo-formulario">
-                    <label for="monto">Monto:</label>
-                    <input type="number" id="monto" step="0.01" required>
-                </div>
-                <div class="grupo-formulario">
-                    <label for="asistencia">Asistencia (%):</label>
-                    <input type="number" id="asistencia" min="0" max="100" required>
-                </div>
-                <div class="grupo-formulario">
-                    <label for="horas">Horas Trabajadas:</label>
-                    <input type="number" id="horas" required>
-                </div>
-                <button type="submit" class="boton-principal">Registrar Pago</button>
-            </form>
-            <button onclick="volverPatrono()" class="boton-secundario">Volver</button>
+            <!-- Contenedor principal donde se cargarán las vistas -->
+            <div id="vistaContenido" class="vista-contenedor"></div>
         </div>
-    </div>
-
-    <!-- Pantalla Pagos Pendientes -->
-    <div id="pantallaPagosPendientes" class="pantalla oculto">
-        <div class="contenedor-borde-externo">
-            <h2>Pagos Pendientes</h2>
-            <div class="contenedor-tabla">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>FECHA</th>
-                            <th>EMPLEADO</th>
-                            <th>MONTO</th>
-                            <th>DETALLES</th>
-                            <th>ACCIONES</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tablaPagosPendientes"></tbody>
-                </table>
-            </div>
-            <button onclick="volverPatrono()" class="boton-secundario">Volver</button>
-        </div>
-    </div>
-
-    <!-- Pantalla Principal Empleado -->
-    <div id="pantallaEmpleado" class="pantalla oculto">
-        <div class="contenedor-borde-externo">
-            <div class="encabezado">
+        <!-- Panel del Empleado -->
+        <div id="panelEmpleado" class="panel oculto">
+            <div class="panel-header">
                 <h2>Panel de Control - Empleado</h2>
-                <button onclick="cerrarSesion()" class="boton-cerrar">Cerrar Sesión</button>
+                <button onclick="cerrarSesion()" class="btn-logout">CERRAR SESIÓN</button>
             </div>
-            <div class="menu-botones">
-                <button onclick="mostrarPantalla('misPagos')" class="boton-menu">MIS PAGOS</button>
-                <button onclick="mostrarPantalla('estadoPagos')" class="boton-menu">ESTADO DE PAGOS</button>
+            <div class="panel-buttons">
+                <button onclick="mostrarSeccionEmpleado('verPagos')" class="btn-action">VER MIS PAGOS</button>
+                <button onclick="mostrarSeccionEmpleado('boletas')" class="btn-action">BOLETAS DE PAGO</button>
             </div>
+            <div id="contenidoEmpleado" class="panel-content"></div>
         </div>
     </div>
-
     <script src="aplicacion.js"></script>
 </body>
 </html>

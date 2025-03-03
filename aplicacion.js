@@ -31,26 +31,71 @@ function iniciarSesion() {
     contenedorMensaje.innerHTML = '';
 
     if (!tipoUsuario || !idUsuario) {
-        mostrarMensaje('Por favor complete todos los campos', 'error');
+        mostrarMensajeLogin('Por favor complete todos los campos', 'error');
         return;
     }
 
     if (usuarios[tipoUsuario] && usuarios[tipoUsuario][idUsuario]) {
+        const usuario = usuarios[tipoUsuario][idUsuario];
         localStorage.setItem('idUsuarioActual', idUsuario);
         localStorage.setItem('tipoUsuarioActual', tipoUsuario);
+        
         document.getElementById('seccionLogin').classList.add('oculto');
         
+        // Mostrar solo el panel correspondiente al tipo de usuario
         if (tipoUsuario === 'patrono') {
             document.getElementById('panelPatrono').classList.remove('oculto');
+            document.getElementById('panelEmpleado').classList.add('oculto');
+            cargarMenuPatrono();
         } else {
             document.getElementById('panelEmpleado').classList.remove('oculto');
+            document.getElementById('panelPatrono').classList.add('oculto');
+            cargarMenuEmpleado();
         }
+        
+        mostrarMensajeLogin(`Bienvenido ${usuario.nombre}`, 'exito');
     } else {
-        mostrarMensaje('Credenciales inválidas', 'error');
+        mostrarMensajeLogin('Usuario o tipo de usuario incorrecto', 'error');
     }
 }
 
-// Función para cerrar sesión
+function cargarMenuPatrono() {
+    const contenidoPatrono = document.getElementById('contenidoPatrono');
+    contenidoPatrono.innerHTML = `
+        <div class="menu-principal">
+            <h2>Panel de Control - Patrono</h2>
+            <div class="menu-botones">
+                <button onclick="mostrarSeccionPatrono('nuevoPago')" class="btn-action">REGISTRAR NUEVO PAGO</button>
+                <button onclick="mostrarSeccionPatrono('pagosPendientes')" class="btn-action">PAGOS PENDIENTES</button>
+                <button onclick="mostrarSeccionPatrono('historial')" class="btn-action">HISTORIAL DE PAGOS</button>
+            </div>
+        </div>
+    `;
+}
+
+function cargarMenuEmpleado() {
+    const contenidoEmpleado = document.getElementById('contenidoEmpleado');
+    contenidoEmpleado.innerHTML = `
+        <div class="menu-principal">
+            <h2>Panel de Control - Empleado</h2>
+            <div class="menu-botones">
+                <button onclick="mostrarSeccionEmpleado('verPagos')" class="btn-action">VER MIS PAGOS</button>
+                <button onclick="mostrarSeccionEmpleado('boletas')" class="btn-action">MIS BOLETAS</button>
+            </div>
+        </div>
+    `;
+}
+function mostrarMensajeLogin(mensaje, tipo) {
+    const contenedor = document.getElementById('mensajeLogin');
+    if (contenedor) {
+        contenedor.innerHTML = `<div class="mensaje ${tipo}">${mensaje}</div>`;
+        if (tipo === 'exito') {
+            setTimeout(() => {
+                contenedor.innerHTML = '';
+            }, 2000);
+        }
+    }
+}
 function cerrarSesion() {
     localStorage.removeItem('idUsuarioActual');
     localStorage.removeItem('tipoUsuarioActual');
@@ -66,305 +111,253 @@ function ocultarTodasLasSecciones() {
     const secciones = document.querySelectorAll('.seccion');
     secciones.forEach(seccion => seccion.classList.add('oculto'));
 }
-
-// Función para mostrar secciones del panel del patrono
+// Funciones para el panel del patrono
 function mostrarSeccionPatrono(seccion) {
-    ocultarTodasLasSecciones();
+    const contenidoPatrono = document.getElementById('contenidoPatrono');
     
     switch(seccion) {
-        case 'planilla':
-            mostrarPlanilla();
+        case 'nuevoPago':
+            contenidoPatrono.innerHTML = `
+                <div class="seccion">
+                    <div class="seccion-header">
+                        <h3>Registrar Nuevo Pago</h3>
+                        <button onclick="volverMenu('patrono')" class="btn-cerrar">Cerrar</button>
+                    </div>
+                    <form id="formularioPago" onsubmit="return validarYEnviarPago(event)">
+                        <div class="form-group">
+                            <label>ID del Empleado:</label>
+                            <input type="text" id="idEmpleado" required placeholder="Ejemplo: EMP001">
+                        </div>
+                        <div class="form-group">
+                            <label>Monto (Q):</label>
+                            <input type="number" id="monto" required min="0" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label>Fecha:</label>
+                            <input type="date" id="fechaPago" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Asistencia (%):</label>
+                            <input type="number" id="asistencia" required min="0" max="100">
+                        </div>
+                        <div class="form-group">
+                            <label>Horas Trabajadas:</label>
+                            <input type="number" id="horasTrabajadas" required min="0">
+                        </div>
+                        <button type="submit" class="btn-action">Registrar Pago</button>
+                    </form>
+                </div>
+            `;
             break;
+
         case 'pagosPendientes':
-            document.getElementById('seccionPagosPendientes').classList.remove('oculto');
+            contenidoPatrono.innerHTML = `
+                <div class="seccion">
+                    <div class="seccion-header">
+                        <h3>Pagos Pendientes</h3>
+                        <button onclick="volverMenu('patrono')" class="btn-cerrar">Cerrar</button>
+                    </div>
+                    <div class="contenedor-tabla">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Empleado</th>
+                                    <th>Monto</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaPagosPendientes">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
             cargarPagosPendientes();
             break;
-        case 'nuevoPago':
-            document.getElementById('seccionNuevoPago').classList.remove('oculto');
+
+        case 'historial':
+            contenidoPatrono.innerHTML = `
+                <div class="seccion">
+                    <div class="seccion-header">
+                        <h3>Historial de Pagos</h3>
+                        <button onclick="volverMenu('patrono')" class="btn-cerrar">Cerrar</button>
+                    </div>
+                    <div class="contenedor-tabla">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Empleado</th>
+                                    <th>Monto</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaHistorial">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+            cargarHistorialPagos();
             break;
     }
 }
-
-// Función para mostrar secciones del panel del empleado
+// Funciones para el panel del empleado
 function mostrarSeccionEmpleado(seccion) {
-    ocultarTodasLasSecciones();
-    document.getElementById('panelEmpleado').classList.remove('oculto');
+    const contenidoEmpleado = document.getElementById('contenidoEmpleado');
     
     switch(seccion) {
         case 'verPagos':
-            mostrarPagosEmpleado();
-            break;
-        case 'boletas':
-            mostrarBoletas();
-            break;
-    }
-}
-
-// Función para mostrar la planilla de empleados
-function mostrarPlanilla() {
-    const contenido = `
-        <div class="seccion">
-            <div class="encabezado-seccion">
-                <h3>Planilla de Empleados</h3>
-                <button onclick="cerrarTabla()" class="boton-cerrar">Cerrar</button>
-            </div>
-            <div class="contenedor-tabla">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>NOMBRE</th>
-                            <th>PUESTO</th>
-                            <th>ESTADO</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${Object.entries(USUARIOS_VALIDOS)
-                            .filter(([_, usuario]) => usuario.tipo === 'empleado')
-                            .map(([id, usuario]) => `
+            contenidoEmpleado.innerHTML = `
+                <div class="seccion">
+                    <div class="seccion-header">
+                        <h3>Mis Pagos</h3>
+                        <button onclick="volverMenu('empleado')" class="btn-cerrar">Cerrar</button>
+                    </div>
+                    <div class="contenedor-tabla">
+                        <table>
+                            <thead>
                                 <tr>
-                                    <td>${id}</td>
-                                    <td>${usuario.nombre}</td>
-                                    <td>${usuario.puesto}</td>
-                                    <td class="estado-activo">${usuario.estado}</td>
+                                    <th>Fecha</th>
+                                    <th>Monto</th>
+                                    <th>Estado</th>
+                                    <th>Detalles</th>
                                 </tr>
-                            `).join('')}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    `;
-    
-    let areaContenido = document.getElementById('contenidoPatrono');
-    if (!areaContenido) {
-        areaContenido = document.createElement('div');
-        areaContenido.id = 'contenidoPatrono';
-        document.getElementById('panelPatrono').appendChild(areaContenido);
-    }
-    areaContenido.innerHTML = contenido;
-}
+                            </thead>
+                            <tbody id="tablaPagosEmpleado">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+            cargarPagosEmpleado();
+            break;
 
-// Función para cargar pagos pendientes
-function cargarPagosPendientes() {
-    const tablaPagosPendientes = document.getElementById('tablaPagosPendientes');
-    const pagosPendientes = pagos.filter(p => p.estado === 'Pendiente');
-
-    tablaPagosPendientes.innerHTML = pagosPendientes.length === 0 ? 
-        '<tr><td colspan="5" style="text-align: center;">No hay pagos pendientes</td></tr>' :
-        pagosPendientes.map(pago => `
-            <tr>
-                <td>${pago.idEmpleado}</td>
-                <td>${USUARIOS_VALIDOS[pago.idEmpleado].nombre}</td>
-                <td>Q${pago.monto.toFixed(2)}</td>
-                <td class="estado-pendiente">${pago.estado}</td>
-                <td>
-                    <button onclick="procesarPago('${pago.id}')" class="boton-pagar">Procesar</button>
-                </td>
-            </tr>
-        `).join('');
-}
-
-// Función para validar el pago
-function validarPago(pago) {
-    if (!/^EMP\d{3}$/.test(pago.idEmpleado)) {
-        mostrarMensaje('ID de empleado inválido. Debe ser EMP seguido de 3 números', 'error');
-        return false;
-    }
-
-    if (isNaN(pago.monto) || pago.monto <= 0) {
-        mostrarMensaje('El monto debe ser mayor a 0', 'error');
-        return false;
-    }
-
-    if (!pago.fecha) {
-        mostrarMensaje('La fecha es requerida', 'error');
-        return false;
-    }
-
-    return true;
-}
-
-// Función para guardar el pago
-function guardarPago(pago) {
-    pagos.push(pago);
-    localStorage.setItem('pagos', JSON.stringify(pagos));
-    
-    if (!document.getElementById('seccionPagosPendientes').classList.contains('oculto')) {
-        cargarPagosPendientes();
+        case 'boletas':
+            contenidoEmpleado.innerHTML = `
+                <div class="seccion">
+                    <div class="seccion-header">
+                        <h3>Mis Boletas de Pago</h3>
+                        <button onclick="volverMenu('empleado')" class="btn-cerrar">Cerrar</button>
+                    </div>
+                    <div class="contenedor-tabla">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Monto</th>
+                                    <th>Detalles</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaBoletasEmpleado">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+            cargarBoletasEmpleado();
+            break;
     }
 }
-
-// Función para procesar un pago
-function procesarPago(idPago) {
-    const indicePago = pagos.findIndex(p => p.id === idPago);
-    if (indicePago !== -1) {
-        pagos[indicePago].estado = 'Pagado';
-        localStorage.setItem('pagos', JSON.stringify(pagos));
-        cargarPagosPendientes();
-        
-        const idUsuarioActual = localStorage.getItem('idUsuarioActual');
-        if (idUsuarioActual === pagos[indicePago].idEmpleado) {
-            mostrarPagosEmpleado();
-        }
-        
-        mostrarMensaje('Pago procesado exitosamente', 'exito');
+function volverMenu(tipo) {
+    if (tipo === 'patrono') {
+        document.getElementById('contenidoPatrono').innerHTML = '';
+    } else {
+        document.getElementById('contenidoEmpleado').innerHTML = '';
     }
 }
-
-// Función para validar y enviar el pago
-function validarYEnviarPago(evento) {
-    evento.preventDefault();
-    
-    const idEmpleado = document.getElementById('idEmpleado').value;
-    const monto = parseFloat(document.getElementById('monto').value);
-    const fecha = document.getElementById('fechaPago').value;
-    const asistencia = document.getElementById('asistencia').value;
-    const horasTrabajadas = document.getElementById('horasTrabajadas').value;
-    
-    if (!USUARIOS_VALIDOS[idEmpleado] || USUARIOS_VALIDOS[idEmpleado].tipo !== 'empleado') {
-        mostrarMensaje('ID de empleado no válido', 'error');
-        return false;
-    }
-    
-    const datosPago = {
-        id: `PAGO${Date.now()}`,
-        idEmpleado: idEmpleado,
-        nombreEmpleado: USUARIOS_VALIDOS[idEmpleado].nombre,
-        monto: monto,
-        fecha: fecha,
-        asistencia: asistencia,
-        horasTrabajadas: horasTrabajadas,
-        estado: 'Pendiente'
-    };
-    
-    if (validarPago(datosPago)) {
-        guardarPago(datosPago);
-        mostrarMensaje('Pago registrado exitosamente', 'exito');
-        evento.target.reset();
-    }
-    return false;
-}
-
-// Función para mostrar pagos del empleado
-function mostrarPagosEmpleado() {
-    const idEmpleado = localStorage.getItem('idUsuarioActual');
-    const pagosEmpleado = pagos.filter(pago => pago.idEmpleado === idEmpleado);
-    
+function mostrarHistorialPagos() {
     const contenido = `
         <div class="seccion">
-            <div class="encabezado-seccion">
-                <h3>Estado de Pagos</h3>
-                <button onclick="cerrarTablaEmpleado()" class="boton-cerrar">Cerrar</button>
-            </div>
+            <h3>Historial de Pagos</h3>
             <div class="contenedor-tabla">
                 <table>
                     <thead>
                         <tr>
                             <th>Fecha</th>
+                            <th>Empleado</th>
                             <th>Monto</th>
                             <th>Estado</th>
                             <th>Detalles</th>
                         </tr>
                     </thead>
                     <tbody>
-                        ${pagosEmpleado.length === 0 ? 
-                            '<tr><td colspan="4" style="text-align: center; font-style: italic;">No hay pagos registrados</td></tr>' :
-                            pagosEmpleado.map(pago => `
-                                <tr>
-                                    <td>${pago.fecha}</td>
-                                    <td>Q${pago.monto.toFixed(2)}</td>
-                                    <td class="estado-${pago.estado.toLowerCase()}">${pago.estado}</td>
-                                    <td>
-                                        Asistencia: ${pago.asistencia}%<br>
-                                        Horas: ${pago.horasTrabajadas}
-                                    </td>
-                                </tr>
-                            `).join('')
-                        }
+                        ${pagos.map(pago => `
+                            <tr>
+                                <td>${pago.fecha}</td>
+                                <td>${USUARIOS_VALIDOS[pago.idEmpleado]?.nombre || 'No encontrado'}</td>
+                                <td>Q${pago.monto.toFixed(2)}</td>
+                                <td>${pago.estado}</td>
+                                <td>
+                                    Asistencia: ${pago.asistencia}%<br>
+                                    Horas: ${pago.horasTrabajadas}
+                                </td>
+                            </tr>
+                        `).join('')}
                     </tbody>
                 </table>
             </div>
         </div>
     `;
-    
-    document.getElementById('contenidoEmpleado').innerHTML = contenido;
+    document.getElementById('contenidoPatrono').innerHTML = contenido;
 }
 
-// Función para mostrar boletas de pago
-function mostrarBoletas() {
-    const idEmpleado = localStorage.getItem('idUsuarioActual');
-    const pagosProcesados = pagos.filter(pago => 
-        pago.idEmpleado === idEmpleado && pago.estado === 'Pagado'
-    );
-
-    const contenido = `
-        <div class="seccion">
-            <div class="encabezado-seccion">
-                <h3>Boletas de Pago</h3>
-                <button onclick="cerrarTablaEmpleado()" class="boton-cerrar">Cerrar</button>
-            </div>
-            <div class="contenedor-tabla">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Fecha</th>
-                            <th>Monto</th>
-                            <th>Detalles</th>
-                            <th>Acción</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${pagosProcesados.length === 0 ? 
-                            '<tr><td colspan="4" style="text-align: center; font-style: italic;">No hay boletas disponibles</td></tr>' :
-                            pagosProcesados.map(pago => `
-                                <tr>
-                                    <td>${pago.fecha}</td>
-                                    <td>Q${pago.monto.toFixed(2)}</td>
-                                    <td>
-                                        Asistencia: ${pago.asistencia}%<br>
-                                        Horas: ${pago.horasTrabajadas}
-                                    </td>
-                                    <td>
-                                        <button onclick="generarBoleta('${pago.id}')" class="boton-boleta">
-                                            Generar Boleta
-                                        </button>
-                                    </td>
-                                </tr>
-                            `).join('')
-                        }
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    `;
+function validarYEnviarPago(evento) {
+    evento.preventDefault();
     
-    document.getElementById('contenidoEmpleado').innerHTML = contenido;
-}
-function aprobarPago(idPago) {
-    const indicePago = pagos.findIndex(p => p.id === idPago);
-    if (indicePago !== -1) {
-        pagos[indicePago].estado = 'Aprobado';
-        localStorage.setItem('pagos', JSON.stringify(pagos));
-        cargarPagosPendientes();
-        mostrarMensaje('Pago aprobado exitosamente', 'exito');
+    const idEmpleado = document.getElementById('idEmpleado').value;
+    const monto = parseFloat(document.getElementById('monto').value);
+    const fecha = document.getElementById('fechaPago').value;
+    const asistencia = parseInt(document.getElementById('asistencia').value);
+    const horasTrabajadas = parseInt(document.getElementById('horasTrabajadas').value);
+    
+    // Validaciones específicas
+    if (!USUARIOS_VALIDOS[idEmpleado]) {
+        mostrarMensajePago('ID de empleado no existe en el sistema', 'error');
+        return false;
     }
+    
+    if (monto <= 0) {
+        mostrarMensajePago('El monto debe ser mayor a 0', 'error');
+        return false;
+    }
+    
+    if (asistencia < 0 || asistencia > 100) {
+        mostrarMensajePago('La asistencia debe estar entre 0 y 100%', 'error');
+        return false;
+    }
+    
+    if (horasTrabajadas < 0) {
+        mostrarMensajePago('Las horas trabajadas no pueden ser negativas', 'error');
+        return false;
+    }
+    
+    const datosPago = {
+        id: `PAGO${Date.now()}`,
+        idEmpleado,
+        monto,
+        fecha,
+        asistencia,
+        horasTrabajadas,
+        estado: 'Pendiente'
+    };
+    
+    guardarPago(datosPago);
+    mostrarMensajePago('Pago registrado exitosamente', 'exito');
+    evento.target.reset();
+    return false;
 }
 
-function generarBoleta(idPago) {
-    const pago = pagos.find(p => p.id === idPago);
-    if (pago) {
-        const empleado = USUARIOS_VALIDOS[pago.idEmpleado];
-        const contenidoBoleta = {
-            titulo: 'Boleta de Pago',
-            nombreEmpleado: empleado.nombre,
-            idEmpleado: pago.idEmpleado,
-            fecha: pago.fecha,
-            monto: pago.monto,
-            asistencia: pago.asistencia,
-            horasTrabajadas: pago.horasTrabajadas
-        };
-        
-        GeneradorPDFPagos.generarBoletaPDF(contenidoBoleta);
+function mostrarMensajePago(mensaje, tipo) {
+    const contenedor = document.getElementById('mensajePago');
+    if (contenedor) {
+        contenedor.innerHTML = `<div class="mensaje ${tipo}">${mensaje}</div>`;
+        setTimeout(() => {
+            contenedor.innerHTML = '';
+        }, 3000);
     }
 }
 
