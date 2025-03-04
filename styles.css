@@ -1,19 +1,19 @@
 /* Variables del sistema */
 :root {
-    --primary-color: #2C3E50;
-    --secondary-color: #34495E;
-    --accent-color: #3498DB;
-    --text-color: #2C3E50;
-    --text-light: #ECF0F1;
-    --background-color: #F5F6FA;
+    --primary-color: #2C3E50;    /* Azul oscuro para menú */
+    --secondary-color: #34495E;   /* Azul secundario */
+    --accent-color: #3498DB;      /* Azul claro para botones */
+    --success-color: #2ECC71;     /* Verde para estados exitosos */
+    --error-color: #E74C3C;       /* Rojo para errores */
+    --warning-color: #F1C40F;     /* Amarillo para pendientes */
+    --text-color: #2C3E50;        /* Color texto principal */
+    --text-light: #ECF0F1;        /* Color texto claro */
+    --background-color: #F5F6FA;  /* Fondo general */
 }
 
-/* Estilos generales */
-body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Segoe UI', sans-serif;
-    background-color: #34495E;
+/* Clases de utilidad para mostrar/ocultar elementos */
+.oculto {
+    display: none !important;
 }
 
 /* Pantalla de inicio de sesión */
@@ -22,107 +22,319 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background-color: #34495E;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1000;
 }
 
+/* Panel principal específico por rol */
+.panel-principal {
+    display: none; /* Oculto por defecto */
+}
+
+.panel-principal.activo {
+    display: flex;
+    width: 100%;
+}
+
+/* Menús específicos por rol */
+#menuPatrono, #menuEmpleado {
+    display: none;
+}
+
+#menuPatrono.activo, #menuEmpleado.activo {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 20px;
+}
+
+/* Ajustes del sidebar */
+.sidebar {
+    width: 280px;
+    background-color: var(--primary-color);
+    height: 100vh;
+    position: fixed;
+    padding: 20px 0;
+    color: var(--text-light);
+}
+
+/* Contenido principal ajustado */
+.contenido-principal {
+    margin-left: 280px;
+    flex: 1;
+    padding: 30px;
+    background-color: var(--background-color);
+    min-height: 100vh;
+}
+
+/* Logo y título en el sidebar */
+.logo-container {
+    padding: 20px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    margin-bottom: 20px;
+}
+
+.logo-container img {
+    width: 80px;
+    margin-bottom: 10px;
+}
+
+.logo-container h2 {
+    color: var(--text-light);
+    font-size: 1.5em;
+    margin: 0;
+}
 .login-box {
     background: white;
     padding: 40px;
     border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     width: 100%;
-    max-width: 400px;
+    max-width: 450px;
     text-align: center;
 }
 
 .login-box h1 {
-    margin-bottom: 10px;
     color: var(--primary-color);
-    font-size: 2em;
+    margin-bottom: 10px;
 }
 
 .login-box .subtitle {
-    color: #666;
+    color: var(--text-color);
     margin-bottom: 30px;
 }
 
-.form-group {
-    margin-bottom: 20px;
-    text-align: left;
+.login-box .btn-primary {
+    width: 100%;
+    padding: 12px;
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 20px;
 }
 
-.form-group label {
-    display: block;
-    margin-bottom: 8px;
-    color: var(--text-color);
+.login-box .btn-primary:hover {
+    background-color: var(--primary-color);
+}
+
+.login-box #mensajeLogin {
+    margin-top: 20px;
+    padding: 10px;
+    border-radius: 6px;
+}
+
+.login-box #mensajeLogin .mensaje.error {
+    background-color: var(--error-color);
+    color: white;
+}
+
+.login-box #mensajeLogin .mensaje.exito {
+    background-color: var(--success-color);
+    color: white;
+}
+/* Panel principal y menú lateral */
+.panel-principal {
+    display: flex;
+    min-height: 100vh;
+}
+.sidebar {
+    width: 250px;
+    background-color: #2C3E50;
+    min-height: 100vh;
+    padding: 20px 0;
+    position: fixed;
+    left: 0;
+    top: 0;
+}
+.logo-container {
+    padding: 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    margin-bottom: 30px;
+}
+.logo-container h1 {
+    color: #fff;
+    font-size: 24px;
+    margin: 0;
+}
+.menu-opciones {
+    padding: 0 15px;
+}
+.menu-item {
+    width: 100%;
+    text-align: left;
+    padding: 12px 20px;
+    margin-bottom: 10px;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #fff;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.menu-item:hover {
+    background-color: rgba(255,255,255,0.1);
+}
+.menu-item.activo {
+    background-color: #3498DB;
+    border-color: #3498DB;
+}
+/* Ajustes para el área de contenido */
+.contenido {
+    margin-left: 250px;
+    padding: 30px;
+    background-color: #f5f6fa;
+    min-height: 100vh;
+}
+
+.contenido header {
+    margin-bottom: 30px;
+}
+
+.contenido h2 {
+    color: #2C3E50;
+    font-size: 24px;
+    margin: 0 0 10px 0;
+}
+
+/* Estilos para tablas */
+.tabla-datos th {
+    background-color: #2C3E50;
+    color: white;
+    padding: 15px;
     font-weight: 500;
 }
 
-.form-group input,
-.form-group select {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    font-size: 14px;
+/* Estilos para formularios */
+.formulario-registro {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
-.btn-cerrar-vista {
-    background-color: #e74c3c;
-    color: white;
-    padding: 10px 20px;
-    border: none;
+
+.formulario-registro h2 {
+    color: #2C3E50;
+    margin-bottom: 20px;
+}
+
+/* Botón de cerrar sesión */
+.btn-cerrar-sesion {
+    position: absolute;
+    bottom: 20px;
+    left: 15px;
+    width: calc(100% - 30px);
+    padding: 12px;
+    background-color: transparent;
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #fff;
     border-radius: 5px;
     cursor: pointer;
-    margin-top: 20px;
-    display: block;
+    transition: all 0.3s ease;
+}
+
+.btn-cerrar-sesion:hover {
+    background-color: rgba(255,255,255,0.1);
+}
+
+.menu-item:hover, 
+.menu-item.activo {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+/* Área de contenido principal */
+.contenido-principal {
+    margin-left: 280px;
+    flex: 1;
+    padding: 30px;
+    background-color: var(--background-color);
+}
+
+/* Tablas de datos */
+.contenedor-tabla {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    padding: 20px;
+    margin-bottom: 20px;
+    overflow-x: auto;
+}
+
+.tabla-datos {
     width: 100%;
-    max-width: 200px;
-    margin-left: auto;
-    margin-right: auto;
-    transition: background-color 0.3s ease;
+    border-collapse: collapse;
 }
 
-.btn-cerrar-vista:hover {
-    background-color: #c0392b;
+.tabla-datos th {
+    background-color: var(--primary-color);
+    color: var(--text-light);
+    padding: 15px;
+    text-align: left;
 }
 
-.btn-cerrar-vista i {
-    margin-right: 8px;
+.tabla-datos td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
 }
+
+/* Estados de pago */
+.estado-pago {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.pendiente {
+    background-color: var(--warning-color);
+    color: #000;
+}
+
+.cancelado {
+    background-color: var(--success-color);
+    color: white;
+}
+
+/* Botones de acción */
+.btn-accion {
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-cerrar {
+    position: absolute;
+    top: 20px;
+    right: 20px;
     background-color: var(--error-color);
     color: white;
     border: none;
 }
+
 .btn-pdf {
     background-color: var(--accent-color);
     color: white;
     border: none;
 }
+
 /* Formulario de registro */
 .formulario-registro {
     background: white;
-    padding: 30px;
+    padding: 25px;
     border-radius: 10px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-    max-width: 600px;
-    margin: 0 auto;
-}
-
-.form-header {
-    margin-bottom: 25px;
-    padding-bottom: 15px;
-    border-bottom: 2px solid #eee;
-}
-
-.form-header h2 {
-    color: var(--primary-color);
-    margin: 0;
-}
-
-.form-header .usuario-actual {
-    color: var(--text-color);
-    font-size: 0.9em;
-    margin-top: 5px;
 }
 
 .form-group {
@@ -133,79 +345,17 @@ body {
     display: block;
     margin-bottom: 8px;
     font-weight: 500;
-    color: var(--text-color);
 }
 
 .form-group input,
 .form-group select {
     width: 100%;
-    padding: 12px;
+    padding: 10px;
     border: 1px solid #ddd;
-    border-radius: 8px;
+    border-radius: 6px;
     font-size: 14px;
-    transition: border-color 0.3s ease;
 }
 
-.form-group input:focus,
-.form-group select:focus {
-    border-color: var(--accent-color);
-    outline: none;
-}
-
-.form-group .input-prefix {
-    position: relative;
-}
-
-.form-group .input-prefix input {
-    padding-left: 30px;
-}
-
-.form-group .prefix {
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #666;
-}
-
-.validation-message {
-    color: var(--error-color);
-    font-size: 0.85em;
-    margin-top: 5px;
-    display: none;
-}
-
-.validation-message.show {
-    display: block;
-    animation: fadeIn 0.3s ease;
-}
-
-.btn-registrar {
-    background-color: var(--accent-color);
-    color: white;
-    padding: 12px 25px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    width: 100%;
-    font-size: 16px;
-    margin-top: 20px;
-    transition: background-color 0.3s ease;
-}
-
-.btn-registrar:hover {
-    background-color: #2980b9;
-}
-
-.btn-registrar:disabled {
-    background-color: #95a5a6;
-    cursor: not-allowed;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
 /* Mensajes del sistema */
 .mensaje-sistema {
     position: fixed;
@@ -266,4 +416,271 @@ body {
 
 .mensaje i {
     font-size: 1.2em;
+}
+/* Estados de empleado */
+.estado-empleado {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.activo {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.inactivo {
+    background-color: var(--error-color);
+    color: white;
+}
+
+/* Mejoras en botones del menú */
+.menu-item.activo {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+    color: white;
+}
+
+/* Estilos para las tablas */
+.contenedor-tabla {
+    margin-top: 20px;
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+/* Menú lateral y opciones */
+.menu-opciones {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 0 20px;
+}
+
+.menu-opciones.oculto {
+    display: none;
+}
+
+.menu-item {
+    width: 100%;
+    padding: 12px 15px;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.1);
+    color: white;
+    border-radius: 5px;
+    text-align: left;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.menu-item i {
+    width: 20px;
+}
+
+.menu-item:hover {
+    background: rgba(255,255,255,0.1);
+}
+
+.menu-item.activo {
+    background: #3498DB;
+    border-color: #3498DB;
+}
+/* Ajustes para el área de contenido */
+.contenido {
+    margin-left: 250px;
+    padding: 30px;
+    background-color: #f5f6fa;
+    min-height: 100vh;
+}
+
+.contenido header {
+    margin-bottom: 30px;
+}
+
+.contenido h2 {
+    color: #2C3E50;
+    font-size: 24px;
+    margin: 0 0 10px 0;
+}
+
+/* Estilos para tablas */
+.tabla-datos th {
+    background-color: var(--primary-color);
+    color: var(--text-light);
+    padding: 15px;
+    text-align: left;
+}
+
+.tabla-datos td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+}
+
+/* Estados de pago */
+.estado-pago {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.pendiente {
+    background-color: var(--warning-color);
+    color: #000;
+}
+
+.cancelado {
+    background-color: var(--success-color);
+    color: white;
+}
+
+/* Botones de acción */
+.btn-accion {
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-cerrar {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background-color: var(--error-color);
+    color: white;
+    border: none;
+}
+
+.btn-pdf {
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+}
+
+/* Formulario de registro */
+.formulario-registro {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+/* Mensajes del sistema */
+.mensaje-sistema {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    border-radius: 6px;
+    font-size: 14px;
+    z-index: 1000;
+}
+
+.mensaje-error {
+    background-color: var(--error-color);
+    color: white;
+}
+
+.mensaje-exito {
+    background-color: var(--success-color);
+    color: white;
+}
+
+/* Diseño responsive */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+    }
+
+    .contenido-principal {
+        margin-left: 0;
+        padding: 15px;
+    }
+
+    .formulario-registro {
+        padding: 15px;
+    }
+}
+/* Animaciones para el login */
+.shake {
+    animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shake {
+    10%, 90% { transform: translate3d(-1px, 0, 0); }
+    20%, 80% { transform: translate3d(2px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+    40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+
+.mensaje {
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: center;
+}
+
+.mensaje i {
+    font-size: 1.2em;
+}
+/* Estados de empleado */
+.estado-empleado {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.activo {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.inactivo {
+    background-color: var(--error-color);
+    color: white;
+}
+
+/* Mejoras en botones del menú */
+.menu-item.activo {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+    color: white;
+}
+
+/* Estilos para las tablas */
+.contenedor-tabla {
+    margin-top: 20px;
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }

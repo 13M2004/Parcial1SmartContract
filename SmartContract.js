@@ -15,13 +15,6 @@ class SmartContract {
        return true;
    }
 
-   // Registrar un nuevo empleador
-   registrarEmpleador(id, nombre) {
-       this.empleadores[id] = { nombre, pagosPendientes: [] };
-       this.saldos[id] = 0;
-       return true;
-   }
-
    // Crear un nuevo pago pendiente
    crearPagoPendiente(idEmpleador, idEmpleado, monto, fecha, condiciones) {
        try {
@@ -88,10 +81,6 @@ class SmartContract {
        return !!this.empleados[idEmpleado];
    }
 
-   // Verificar existencia de empleador
-   existeEmpleador(idEmpleador) {
-       return !!this.empleadores[idEmpleador];
-   }
 }
 
 export default SmartContract;
