@@ -1,9 +1,8 @@
 import SmartContract from './SmartContract.js';
+import GeneradorPDFPagos from './GeneradorPDFPagos.js';
 
-// Inicializar el contrato inteligente
 const contratoInteligente = new SmartContract();
 
-// Base de datos del sistema
 const USUARIOS_VALIDOS = {
     'PAT001': { tipo: 'patrono', nombre: 'Manuel Monzón', puesto: 'Patrono', estado: 'Activo' },
     'EMP001': { tipo: 'empleado', nombre: 'Nayeli Urrutia', puesto: 'Empleado', estado: 'Activo' },
@@ -11,7 +10,6 @@ const USUARIOS_VALIDOS = {
     'EMP003': { tipo: 'empleado', nombre: 'Alexander Palma', puesto: 'Empleado', estado: 'Activo' }
 };
 
-// Inicializar usuarios en el contrato
 Object.entries(USUARIOS_VALIDOS).forEach(([id, usuario]) => {
     if (usuario.tipo === 'empleado') {
         contratoInteligente.registrarEmpleado(id, usuario.nombre, usuario.puesto);
@@ -20,194 +18,143 @@ Object.entries(USUARIOS_VALIDOS).forEach(([id, usuario]) => {
     }
 });
 
-// Funciones de mensajes del sistema
-function mostrarMensajeLogin(texto, tipo) {
-    const contenedor = document.getElementById('mensajeLogin');
-    contenedor.innerHTML = `<div class="mensaje ${tipo}"><i class="fas ${tipo === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i>${texto}</div>`;
-    
-    if (tipo === 'error') {
-        document.querySelector('.login-box').classList.add('shake');
-        setTimeout(() => {
-            document.querySelector('.login-box').classList.remove('shake');
-        }, 500);
-    }
-
-    if (tipo === 'exito') {
-        setTimeout(() => {
-            contenedor.innerHTML = '';
-        }, 2000);
-    }
-}
-
 function mostrarMensaje(texto, tipo) {
     const mensaje = document.createElement('div');
     mensaje.className = `mensaje-sistema mensaje-${tipo}`;
     mensaje.innerHTML = `<i class="fas ${tipo === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i> ${texto}`;
     document.body.appendChild(mensaje);
-
-    setTimeout(() => {
-        mensaje.remove();
-    }, 3000);
+    setTimeout(() => mensaje.remove(), 3000);
 }
 
-// Funciones de inicio de sesión
-function iniciarSesion() {
+function iniciarSesion(event) {
+    if (event) event.preventDefault();
+    
     const tipoUsuario = document.getElementById('tipoUsuario').value;
     const idUsuario = document.getElementById('idUsuario').value.toUpperCase();
 
-    if (!tipoUsuario || !idUsuario) {
-        mostrarMensajeLogin('Por favor complete todos los campos', 'error');
-        return;
-    }
+    try {
+        if (!tipoUsuario || !idUsuario) {
+            throw new Error('Complete todos los campos');
+        }
 
-    const usuario = USUARIOS_VALIDOS[idUsuario];
-    if (!usuario || usuario.tipo !== tipoUsuario) {
-        mostrarMensajeLogin('Usuario no válido', 'error');
-        return;
-    }
+        const usuario = USUARIOS_VALIDOS[idUsuario];
+        if (!usuario || usuario.tipo !== tipoUsuario) {
+            throw new Error('Credenciales inválidas');
+        }
 
-    mostrarMensajeLogin('Inicio de sesión exitoso', 'exito');
-    
-    // Ocultar login y mostrar panel principal
+        localStorage.setItem('usuarioActual', JSON.stringify(usuario));
+        mostrarPanelPrincipal(usuario);
+        mostrarMensaje('Bienvenido al sistema', 'exito');
+        
+    } catch (error) {
+        mostrarMensaje(error.message, 'error');
+        document.querySelector('.login-box').classList.add('shake');
+        setTimeout(() => {
+            document.querySelector('.login-box').classList.remove('shake');
+        }, 500);
+    }
+}
+
+function mostrarPanelPrincipal(usuario) {
     document.getElementById('seccionLogin').classList.add('oculto');
     const panelPrincipal = document.getElementById('panelPrincipal');
     panelPrincipal.classList.remove('oculto');
 
-    // Mostrar menú correspondiente
-    if (tipoUsuario === 'patrono') {
-        document.getElementById('menuPatrono').classList.remove('oculto');
-        document.getElementById('menuEmpleado').classList.add('oculto');
+    const menuPatrono = document.getElementById('menuPatrono');
+    const menuEmpleado = document.getElementById('menuEmpleado');
+    
+    if (usuario.tipo === 'patrono') {
+        menuPatrono.classList.remove('oculto');
+        menuEmpleado.classList.add('oculto');
+        cargarVista('nuevoPago');
     } else {
-        document.getElementById('menuEmpleado').classList.remove('oculto');
-        document.getElementById('menuPatrono').classList.add('oculto');
+        menuEmpleado.classList.remove('oculto');
+        menuPatrono.classList.add('oculto');
+        cargarVista('historialPagos');
     }
 
-    // Actualizar nombre de usuario
     document.getElementById('nombreUsuario').textContent = usuario.nombre;
-    
-    // Guardar sesión
-    localStorage.setItem('usuarioActual', JSON.stringify({...usuario, id: idUsuario}));
-}
-
-function cerrarSesion() {
-    document.getElementById('panelPrincipal').classList.remove('activo');
-    document.getElementById('menuPatrono').classList.remove('activo');
-    document.getElementById('menuEmpleado').classList.remove('activo');
-    document.getElementById('seccionLogin').classList.remove('oculto');
-    localStorage.removeItem('usuarioActual');
-    document.getElementById('idUsuario').value = '';
-    document.getElementById('tipoUsuario').value = '';
-}
-
-function generarFormularioPago() {
-    const vistaRegistro = document.querySelector('.vista-registro-pago');
-    vistaRegistro.classList.remove('oculto');
-    const select = document.getElementById('empleadoPago');
-    
-    select.innerHTML = '<option value="">Seleccione un empleado...</option>';
-    
-    Object.entries(USUARIOS_VALIDOS)
-        .filter(([_, usuario]) => usuario.tipo === 'empleado')
-        .forEach(([id, empleado]) => {
-            const option = document.createElement('option');
-            option.value = id;
-            option.textContent = empleado.nombre;
-            select.appendChild(option);
-        });
-
-    inicializarFormularioPago();
-    return vistaRegistro.outerHTML;
-}
-
-function inicializarFormularioPago() {
-    const fechaHoy = new Date().toISOString().split('T')[0];
-    document.getElementById('fechaPago').value = fechaHoy;
-    document.getElementById('fechaPago').max = fechaHoy;
 }
 
 function cargarVista(vista) {
-    const tituloSeccion = document.getElementById('tituloSeccion');
-    const contenedor = document.getElementById('vistaContenido');
-    contenedor.innerHTML = '';
-
-    // Ocultar todas las vistas anteriores
-    document.querySelectorAll('.vista').forEach(v => v.classList.add('oculto'));
-
+    const contenido = document.getElementById('vistaContenido');
+    contenido.innerHTML = '';
+    
     switch(vista) {
         case 'nuevoPago':
-            tituloSeccion.textContent = 'Registro de Nuevo Pago';
-            contenedor.innerHTML = `
-                <div class="formulario-registro">
-                    <div class="form-group">
-                        <label><i class="fas fa-user"></i> Empleado:</label>
-                        <select id="empleadoPago" required>
-                            <option value="">Seleccione un empleado...</option>
-                            ${Object.entries(USUARIOS_VALIDOS)
-                                .filter(([_, user]) => user.tipo === 'empleado')
-                                .map(([id, emp]) => `<option value="${id}">${emp.nombre}</option>`).join('')}
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-money-bill-wave"></i> Monto (Q):</label>
-                        <input type="number" id="montoPago" min="0" step="0.01" required>
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-calendar"></i> Fecha:</label>
-                        <input type="date" id="fechaPago" required>
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-percentage"></i> Porcentaje Horas Trabajadas:</label>
-                        <input type="number" id="porcentajeHoras" min="0" max="100" required>
-                    </div>
-                    <div class="botones-grupo">
-                        <button onclick="registrarPago()" class="btn-primario">
-                            <i class="fas fa-save"></i> Registrar Pago
-                        </button>
-                        <button onclick="cerrarVista()" class="btn-secundario">
-                            <i class="fas fa-times"></i> Cerrar
-                        </button>
-                    </div>
-                </div>
-            `;
-            inicializarFormularioPago();
+            mostrarFormularioPago();
+            document.getElementById('tituloSeccion').textContent = 'Nuevo Pago';
             break;
-
         case 'historialPagos':
-            tituloSeccion.textContent = 'Historial de Pagos';
-            const usuario = JSON.parse(localStorage.getItem('usuarioActual'));
-            if (usuario.tipo === 'empleado') {
-                mostrarHistorialEmpleado(usuario.id);
-            } else {
-                mostrarHistorialCompleto();
-            }
-            contenedor.innerHTML += `
-                <button onclick="cerrarVista()" class="btn-secundario">
-                    <i class="fas fa-times"></i> Cerrar
-                </button>
-            `;
+            mostrarHistorialCompleto();
+            document.getElementById('tituloSeccion').textContent = 'Historial de Pagos';
             break;
-
         case 'plantilla':
-            tituloSeccion.textContent = 'Plantilla de Personal';
             mostrarPlantilla();
-            contenedor.innerHTML += `
-                <button onclick="cerrarVista()" class="btn-secundario">
-                    <i class="fas fa-times"></i> Cerrar
-                </button>
-            `;
+            document.getElementById('tituloSeccion').textContent = 'Plantilla de Empleados';
             break;
+        case 'boletas':
+            mostrarBoletas();
+            document.getElementById('tituloSeccion').textContent = 'Mis Boletas';
+            break;
+        default:
+            contenido.innerHTML = '<p>Seleccione una opción del menú</p>';
+            document.getElementById('tituloSeccion').textContent = 'Bienvenido';
     }
 }
 
-function registrarPago() {
+function cerrarSesion() {
+    localStorage.removeItem('usuarioActual');
+    document.getElementById('panelPrincipal').classList.add('oculto');
+    document.getElementById('seccionLogin').classList.remove('oculto');
+    document.getElementById('idUsuario').value = '';
+    document.getElementById('tipoUsuario').value = '';
+    mostrarMensaje('Sesión cerrada', 'exito');
+}
+
+// Resto de funciones para manejar pagos y vistas
+function mostrarFormularioPago() {
+    const template = document.createElement('template');
+    template.innerHTML = `
+        <form id="formPago" class="formulario-pago" onsubmit="registrarPago(event)">
+            <div class="form-group">
+                <label for="empleadoPago">Empleado:</label>
+                <select id="empleadoPago" required>
+                    ${Object.entries(USUARIOS_VALIDOS)
+                        .filter(([_, user]) => user.tipo === 'empleado')
+                        .map(([id, user]) => `<option value="${id}">${user.nombre}</option>`)
+                        .join('')}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="montoPago">Monto:</label>
+                <input type="number" id="montoPago" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label for="fechaPago">Fecha:</label>
+                <input type="date" id="fechaPago" required>
+            </div>
+            <div class="form-group">
+                <label for="porcentajeHoras">Porcentaje de Horas:</label>
+                <input type="number" id="porcentajeHoras" min="0" max="100" required>
+            </div>
+            <button type="submit" class="btn-primario">Registrar Pago</button>
+        </form>
+    `;
+    document.getElementById('vistaContenido').appendChild(template.content);
+}
+
+function registrarPago(event) {
+    if (event) event.preventDefault();
+    
     const empleado = document.getElementById('empleadoPago').value;
     const monto = parseFloat(document.getElementById('montoPago').value);
     const fecha = document.getElementById('fechaPago').value;
     const porcentaje = document.getElementById('porcentajeHoras').value;
     const usuario = JSON.parse(localStorage.getItem('usuarioActual'));
 
-    if (!empleado || !monto || !fecha || !porcentaje) {
-        mostrarMensaje('Complete todos los campos', 'error');
+    if (!usuario) {
+        mostrarMensaje('Sesión inválida', 'error');
         return;
     }
 
@@ -230,10 +177,8 @@ function registrarPago() {
     }
 }
 
-function mostrarHistorialEmpleado(idEmpleado) {
-    const pagosEmpleado = contratoInteligente.obtenerPagosEmpleado(idEmpleado)
-        .filter(pago => pago.estado === 'Cancelado');
-    
+function mostrarHistorialCompleto() {
+    const pagos = contratoInteligente.transacciones.mostrarTransacciones();
     const template = document.createElement('template');
     template.innerHTML = `
         <div class="contenedor-tabla">
@@ -241,17 +186,19 @@ function mostrarHistorialEmpleado(idEmpleado) {
                 <thead>
                     <tr>
                         <th>Fecha</th>
+                        <th>Empleado</th>
                         <th>Monto</th>
                         <th>Estado</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
-                    ${pagosEmpleado.map(pago => `
+                    ${pagos.map(pago => `
                         <tr>
                             <td>${pago.fecha}</td>
+                            <td>${USUARIOS_VALIDOS[pago.empleadoId].nombre}</td>
                             <td>Q${pago.monto.toFixed(2)}</td>
-                            <td><span class="estado-pago cancelado">Cancelado</span></td>
+                            <td><span class="estado-pago ${pago.estado.toLowerCase()}">${pago.estado}</span></td>
                             <td>
                                 <button onclick="verPDF('${pago.id}')" class="btn-pdf">
                                     <i class="fas fa-file-pdf"></i> Ver PDF
@@ -266,129 +213,27 @@ function mostrarHistorialEmpleado(idEmpleado) {
     document.getElementById('vistaContenido').appendChild(template.content);
 }
 
+function mostrarBoletas() {
+    const usuario = JSON.parse(localStorage.getItem('usuarioActual'));
+    if (!usuario) {
+        mostrarMensaje('Sesión inválida', 'error');
+        return;
+    }
+    const pagos = contratoInteligente.obtenerPagosEmpleado(usuario.id);
+    mostrarHistorialCompleto(pagos);
+}
+
 function verPDF(idPago) {
     const pago = contratoInteligente.transacciones.buscarPago(idPago);
     if (pago) {
-        // Aquí se implementaría la generación del PDF con estilo de cheque
         window.open(`generarPDF.html?id=${idPago}`, '_blank');
     }
 }
 
-function cerrarVista() {
-    document.getElementById('vistaContenido').innerHTML = '';
-    document.getElementById('tituloSeccion').textContent = 'Bienvenido al Sistema';
-}
-
-function mostrarHistorialCompleto() {
-    const pagos = contratoInteligente.transacciones.mostrarTransacciones();
-    mostrarTablaHistorial(pagos);
-}
-
-function mostrarPlantilla() {
-    const empleados = contratoInteligente.obtenerTodosLosEmpleados();
-    const template = document.createElement('template');
-    template.innerHTML = `
-        <div class="contenedor-tabla">
-            <table class="tabla-datos">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Nombre</th>
-                        <th>Puesto</th>
-                        <th>Estado</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${empleados.map(empleado => `
-                        <tr>
-                            <td>${empleado.id}</td>
-                            <td>${empleado.nombre}</td>
-                            <td>${empleado.puesto}</td>
-                            <td><span class="estado-empleado ${empleado.estado.toLowerCase()}">${empleado.estado}</span></td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-        </div>
-    `;
-    document.getElementById('vistaContenido').innerHTML = '';
-    document.getElementById('vistaContenido').appendChild(template.content);
-}
-
-function mostrarBoletas() {
-    const usuario = JSON.parse(localStorage.getItem('usuarioActual'));
-    const pagosEmpleado = contratoInteligente.obtenerPagosEmpleado(usuario.id);
-    
-    const template = document.createElement('template');
-    template.innerHTML = `
-        <div class="contenedor-tabla">
-            <table class="tabla-datos">
-                <thead>
-                    <tr>
-                        <th>Fecha</th>
-                        <th>Monto</th>
-                        <th>Estado</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${pagosEmpleado.map(pago => `
-                        <tr>
-                            <td>${pago.fecha}</td>
-                            <td>Q${pago.monto.toFixed(2)}</td>
-                            <td><span class="estado-pago ${pago.estado.toLowerCase()}">${pago.estado}</span></td>
-                            <td>
-                                <button onclick="generarPDF('${pago.id}')" class="btn-pdf">
-                                    <i class="fas fa-file-pdf"></i> Descargar Boleta
-                                </button>
-                            </td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-        </div>
-    `;
-    document.getElementById('vistaContenido').innerHTML = '';
-    document.getElementById('vistaContenido').appendChild(template.content);
-}
-
-function generarPDF(idPago) {
-    const resultado = contratoInteligente.actualizarEstadoPago(idPago, "Cancelado");
-    if (resultado) {
-        mostrarMensaje('Boleta generada y pago actualizado', 'exito');
-        const usuario = JSON.parse(localStorage.getItem('usuarioActual'));
-        if (usuario.tipo === 'empleado') {
-            mostrarBoletas();
-        } else {
-            mostrarHistorialCompleto();
-        }
-    } else {
-        mostrarMensaje('Error al generar la boleta', 'error');
-    }
-}
-
-function mostrarPanelPrincipal(usuario) {
-    document.getElementById('seccionLogin').classList.add('oculto');
-    const panelPrincipal = document.getElementById('panelPrincipal');
-    panelPrincipal.classList.remove('oculto');
-    panelPrincipal.classList.add('activo');
-
-    if (usuario.tipo === 'patrono') {
-        document.getElementById('menuPatrono').classList.add('activo');
-        cargarVista('nuevoPago');
-    } else {
-        document.getElementById('menuEmpleado').classList.add('activo');
-        cargarVista('historialPagos');
-    }
-
-    document.getElementById('nombreUsuario').textContent = usuario.nombre;
-}
-
-// Inicialización
+// Verificar sesión al cargar la página
 document.addEventListener('DOMContentLoaded', () => {
-    const usuarioGuardado = localStorage.getItem('usuarioActual');
-    if (usuarioGuardado) {
-        const usuario = JSON.parse(usuarioGuardado);
+    const usuario = JSON.parse(localStorage.getItem('usuarioActual'));
+    if (usuario) {
         mostrarPanelPrincipal(usuario);
     }
 });

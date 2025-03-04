@@ -8,62 +8,46 @@ class SmartContract {
         this.cargarDatos();
     }
 
-    cargarDatos() {
-        const datosEmpleados = localStorage.getItem('empleados');
-        const datosEmpleadores = localStorage.getItem('empleadores');
-        
-        if (datosEmpleados) {
-            this.empleados = JSON.parse(datosEmpleados);
-        }
-        if (datosEmpleadores) {
-            this.empleadores = JSON.parse(datosEmpleadores);
-        }
-    }
-
-    guardarDatos() {
-        localStorage.setItem('empleados', JSON.stringify(this.empleados));
-        localStorage.setItem('empleadores', JSON.stringify(this.empleadores));
-    }
-
-    registrarEmpleado(id, nombre, puesto = 'Empleado') {
-        this.empleados[id] = { 
-            nombre, 
-            puesto,
-            estado: 'Activo',
-            fechaRegistro: new Date().toISOString(),
-            pagosRecibidos: 0,
-            totalRecibido: 0
-        };
-        this.guardarDatos();
-        return true;
-    }
-
-    registrarEmpleador(id, nombre, puesto = 'Patrono') {
-        this.empleadores[id] = {
-            nombre,
-            puesto,
-            estado: 'Activo',
-            fechaRegistro: new Date().toISOString(),
-            pagosRealizados: 0,
-            totalPagado: 0
-        };
-        this.guardarDatos();
-        return true;
-    }
-
     crearPagoPendiente(idEmpleador, idEmpleado, monto, fecha, condiciones) {
         try {
-            if (!this.empleadores[idEmpleador] || !this.empleados[idEmpleado]) {
-                throw new Error("Empleador o empleado no registrado");
+            // Validaciones mejoradas
+            if (!this.empleadores[idEmpleador]) {
+                throw new Error("Empleador no registrado");
+            }
+            if (!this.empleados[idEmpleado]) {
+                throw new Error("Empleado no registrado");
+            }
+            
+            // Validación de monto
+            const MONTO_MINIMO = 3500;
+            const MONTO_MAXIMO = 25000;
+            
+            if (monto < MONTO_MINIMO) {
+                throw new Error(`El monto debe ser mayor a Q${MONTO_MINIMO}`);
+            }
+            if (monto > MONTO_MAXIMO) {
+                throw new Error(`El monto no puede exceder Q${MONTO_MAXIMO}`);
             }
 
-            if (monto <= 0) {
-                throw new Error("El monto debe ser mayor a 0");
+            // Validación de duplicados
+            const pagosExistentes = this.transacciones.mostrarTransacciones();
+            const pagosDuplicados = pagosExistentes.filter(p => 
+                p.idEmpleado === idEmpleado && 
+                p.fecha === fecha && 
+                p.estado === 'Pendiente'
+            );
+            
+            if (pagosDuplicados.length > 0) {
+                throw new Error("Ya existe un pago pendiente para este empleado en la fecha especificada");
             }
 
-            const horasTrabajadas = condiciones.porcentajeHoras || 100;
+            // Crear pago con validaciones adicionales
+            const horasTrabajadas = parseInt(condiciones.porcentajeHoras) || 100;
+            if (horasTrabajadas < 0 || horasTrabajadas > 100) {
+                throw new Error("El porcentaje de horas debe estar entre 0 y 100");
+            }
+
             const montoFinal = (monto * horasTrabajadas) / 100;
-
             const pago = {
                 id: Date.now().toString(),
                 idEmpleador,
@@ -82,7 +66,32 @@ class SmartContract {
             return true;
         } catch (error) {
             console.error('Error en crearPagoPendiente:', error);
-            return false;
+            throw error;
+        }
+    }
+
+    actualizarEstadoPago(idPago, nuevoEstado) {
+        try {
+            const pago = this.transacciones.buscarPago(idPago);
+            if (!pago) {
+                throw new Error("Pago no encontrado");
+            }
+            
+            if (pago.estado === nuevoEstado) {
+                throw new Error(`El pago ya está en estado ${nuevoEstado}`);
+            }
+            
+            const resultado = this.transacciones.actualizarEstadoPago(idPago, nuevoEstado);
+            if (resultado) {
+                if (nuevoEstado === 'Cancelado') {
+                    pago.fechaPago = new Date().toISOString();
+                }
+                this.guardarDatos();
+            }
+            return resultado;
+        } catch (error) {
+            console.error('Error al actualizar estado:', error);
+            throw error;
         }
     }
 

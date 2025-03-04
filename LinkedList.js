@@ -2,57 +2,76 @@ import Node from './Node.js';
 
 class LinkedList {
     constructor() {
-        this.cabeza = null;
-        this.cargarDeAlmacenamiento();
+        this.head = null;
+        this.length = 0;
     }
 
-    agregarTransaccion(datos) {
-        const nuevoNodo = new Node(datos);
-        if (!this.cabeza) {
-            this.cabeza = nuevoNodo;
-        } else {
-            let actual = this.cabeza;
-            while (actual.siguiente) {
-                actual = actual.siguiente;
+    agregarTransaccion(pago) {
+        try {
+            const node = new Node(pago);
+            if (!this.head) {
+                this.head = node;
+            } else {
+                let current = this.head;
+                while (current.next) {
+                    current = current.next;
+                }
+                current.next = node;
             }
-            actual.siguiente = nuevoNodo;
+            this.length++;
+            this.guardarEnLocalStorage();
+            return true;
+        } catch (error) {
+            console.error('Error al agregar transacción:', error);
+            throw new Error('No se pudo agregar la transacción');
         }
-        this.guardarEnAlmacenamiento();
-    }
-
-    actualizarEstadoPago(id, nuevoEstado) {
-        let actual = this.cabeza;
-        while (actual) {
-            if (actual.datos.id === id) {
-                actual.datos.estado = nuevoEstado;
-                actual.datos.fechaPago = new Date().toISOString();
-                this.guardarEnAlmacenamiento();
-                return true;
-            }
-            actual = actual.siguiente;
-        }
-        return false;
-    }
-
-    mostrarTransacciones() {
-        let actual = this.cabeza;
-        const arregloTransacciones = [];
-        while (actual) {
-            arregloTransacciones.push(actual.datos);
-            actual = actual.siguiente;
-        }
-        return arregloTransacciones;
     }
 
     buscarPago(id) {
-        let actual = this.cabeza;
-        while (actual) {
-            if (actual.datos.id === id) {
-                return actual.datos;
+        try {
+            let current = this.head;
+            while (current) {
+                if (current.data.id === id) {
+                    return current.data;
+                }
+                current = current.next;
             }
-            actual = actual.siguiente;
+            return null;
+        } catch (error) {
+            console.error('Error al buscar pago:', error);
+            return null;
         }
-        return null;
+    }
+
+    actualizarEstadoPago(id, nuevoEstado) {
+        try {
+            let current = this.head;
+            while (current) {
+                if (current.data.id === id) {
+                    current.data.estado = nuevoEstado;
+                    if (nuevoEstado === 'Cancelado') {
+                        current.data.fechaPago = new Date().toISOString();
+                    }
+                    this.guardarEnLocalStorage();
+                    return true;
+                }
+                current = current.next;
+            }
+            return false;
+        } catch (error) {
+            console.error('Error al actualizar estado:', error);
+            throw new Error('No se pudo actualizar el estado del pago');
+        }
+    }
+
+    mostrarTransacciones() {
+        const transacciones = [];
+        let current = this.head;
+        while (current) {
+            transacciones.push(current.data);
+            current = current.next;
+        }
+        return transacciones;
     }
 
     obtenerPagosPendientes() {
@@ -63,29 +82,26 @@ class LinkedList {
         return this.mostrarTransacciones().filter(pago => pago.estado === 'Cancelado');
     }
 
-    guardarEnAlmacenamiento() {
-        const datos = this.mostrarTransacciones();
-        localStorage.setItem('listaPagos', JSON.stringify(datos));
-    }
-
-    cargarDeAlmacenamiento() {
-        const datos = localStorage.getItem('listaPagos');
-        if (datos) {
-            const transacciones = JSON.parse(datos);
-            transacciones.forEach(transaccion => {
-                this.agregarTransaccion(transaccion);
-            });
+    guardarEnLocalStorage() {
+        try {
+            const transacciones = this.mostrarTransacciones();
+            localStorage.setItem('transacciones', JSON.stringify(transacciones));
+        } catch (error) {
+            console.error('Error al guardar en localStorage:', error);
+            throw new Error('No se pudieron guardar los datos');
         }
     }
 
-    obtenerEstadisticas() {
-        const transacciones = this.mostrarTransacciones();
-        return {
-            totalPagos: transacciones.length,
-            pagosPendientes: transacciones.filter(p => p.estado === 'Pendiente').length,
-            pagosCancelados: transacciones.filter(p => p.estado === 'Cancelado').length,
-            montoTotal: transacciones.reduce((sum, p) => sum + p.monto, 0)
-        };
+    cargarDeLocalStorage() {
+        try {
+            const transacciones = JSON.parse(localStorage.getItem('transacciones')) || [];
+            this.head = null;
+            this.length = 0;
+            transacciones.forEach(t => this.agregarTransaccion(t));
+        } catch (error) {
+            console.error('Error al cargar de localStorage:', error);
+            throw new Error('No se pudieron cargar los datos');
+        }
     }
 }
 

@@ -524,7 +524,7 @@ select:focus {
     top: 20px;
     right: 20px;
 }
-/* ... (resto del CSS existente) ... */
+
 
 /* Diseño responsive */
 @media (max-width: 768px) {
