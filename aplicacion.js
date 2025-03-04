@@ -146,14 +146,89 @@ function inicializarFormularioPago() {
     document.getElementById('fechaPago').max = fechaHoy;
 }
 
+function cargarVista(vista) {
+    const tituloSeccion = document.getElementById('tituloSeccion');
+    const contenedor = document.getElementById('vistaContenido');
+    contenedor.innerHTML = '';
+
+    // Ocultar todas las vistas anteriores
+    document.querySelectorAll('.vista').forEach(v => v.classList.add('oculto'));
+
+    switch(vista) {
+        case 'nuevoPago':
+            tituloSeccion.textContent = 'Registro de Nuevo Pago';
+            contenedor.innerHTML = `
+                <div class="formulario-registro">
+                    <div class="form-group">
+                        <label><i class="fas fa-user"></i> Empleado:</label>
+                        <select id="empleadoPago" required>
+                            <option value="">Seleccione un empleado...</option>
+                            ${Object.entries(USUARIOS_VALIDOS)
+                                .filter(([_, user]) => user.tipo === 'empleado')
+                                .map(([id, emp]) => `<option value="${id}">${emp.nombre}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-money-bill-wave"></i> Monto (Q):</label>
+                        <input type="number" id="montoPago" min="0" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-calendar"></i> Fecha:</label>
+                        <input type="date" id="fechaPago" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-percentage"></i> Porcentaje Horas Trabajadas:</label>
+                        <input type="number" id="porcentajeHoras" min="0" max="100" required>
+                    </div>
+                    <div class="botones-grupo">
+                        <button onclick="registrarPago()" class="btn-primario">
+                            <i class="fas fa-save"></i> Registrar Pago
+                        </button>
+                        <button onclick="cerrarVista()" class="btn-secundario">
+                            <i class="fas fa-times"></i> Cerrar
+                        </button>
+                    </div>
+                </div>
+            `;
+            inicializarFormularioPago();
+            break;
+
+        case 'historialPagos':
+            tituloSeccion.textContent = 'Historial de Pagos';
+            const usuario = JSON.parse(localStorage.getItem('usuarioActual'));
+            if (usuario.tipo === 'empleado') {
+                mostrarHistorialEmpleado(usuario.id);
+            } else {
+                mostrarHistorialCompleto();
+            }
+            contenedor.innerHTML += `
+                <button onclick="cerrarVista()" class="btn-secundario">
+                    <i class="fas fa-times"></i> Cerrar
+                </button>
+            `;
+            break;
+
+        case 'plantilla':
+            tituloSeccion.textContent = 'Plantilla de Personal';
+            mostrarPlantilla();
+            contenedor.innerHTML += `
+                <button onclick="cerrarVista()" class="btn-secundario">
+                    <i class="fas fa-times"></i> Cerrar
+                </button>
+            `;
+            break;
+    }
+}
+
 function registrarPago() {
     const empleado = document.getElementById('empleadoPago').value;
     const monto = parseFloat(document.getElementById('montoPago').value);
     const fecha = document.getElementById('fechaPago').value;
+    const porcentaje = document.getElementById('porcentajeHoras').value;
     const usuario = JSON.parse(localStorage.getItem('usuarioActual'));
 
-    if (!empleado || !monto || !fecha) {
-        mostrarMensaje('Por favor complete todos los campos', 'error');
+    if (!empleado || !monto || !fecha || !porcentaje) {
+        mostrarMensaje('Complete todos los campos', 'error');
         return;
     }
 
@@ -162,7 +237,10 @@ function registrarPago() {
         empleado,
         monto,
         fecha,
-        { descripcion: 'Pago de salario' }
+        { 
+            descripcion: 'Pago de salario',
+            porcentajeHoras: porcentaje 
+        }
     );
 
     if (resultado) {
@@ -174,8 +252,52 @@ function registrarPago() {
 }
 
 function mostrarHistorialEmpleado(idEmpleado) {
-    const pagosEmpleado = contratoInteligente.obtenerPagosEmpleado(idEmpleado);
-    mostrarTablaHistorial(pagosEmpleado);
+    const pagosEmpleado = contratoInteligente.obtenerPagosEmpleado(idEmpleado)
+        .filter(pago => pago.estado === 'Cancelado');
+    
+    const template = document.createElement('template');
+    template.innerHTML = `
+        <div class="contenedor-tabla">
+            <table class="tabla-datos">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Monto</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${pagosEmpleado.map(pago => `
+                        <tr>
+                            <td>${pago.fecha}</td>
+                            <td>Q${pago.monto.toFixed(2)}</td>
+                            <td><span class="estado-pago cancelado">Cancelado</span></td>
+                            <td>
+                                <button onclick="verPDF('${pago.id}')" class="btn-pdf">
+                                    <i class="fas fa-file-pdf"></i> Ver PDF
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+    `;
+    document.getElementById('vistaContenido').appendChild(template.content);
+}
+
+function verPDF(idPago) {
+    const pago = contratoInteligente.transacciones.buscarPago(idPago);
+    if (pago) {
+        // Aquí se implementaría la generación del PDF con estilo de cheque
+        window.open(`generarPDF.html?id=${idPago}`, '_blank');
+    }
+}
+
+function cerrarVista() {
+    document.getElementById('vistaContenido').innerHTML = '';
+    document.getElementById('tituloSeccion').textContent = 'Bienvenido al Sistema';
 }
 
 function mostrarHistorialCompleto() {

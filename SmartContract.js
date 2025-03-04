@@ -30,7 +30,9 @@ class SmartContract {
             nombre, 
             puesto,
             estado: 'Activo',
-            fechaRegistro: new Date().toISOString()
+            fechaRegistro: new Date().toISOString(),
+            pagosRecibidos: 0,
+            totalRecibido: 0
         };
         this.guardarDatos();
         return true;
@@ -41,7 +43,9 @@ class SmartContract {
             nombre,
             puesto,
             estado: 'Activo',
-            fechaRegistro: new Date().toISOString()
+            fechaRegistro: new Date().toISOString(),
+            pagosRealizados: 0,
+            totalPagado: 0
         };
         this.guardarDatos();
         return true;
@@ -53,19 +57,25 @@ class SmartContract {
                 throw new Error("Empleador o empleado no registrado");
             }
 
-            if (monto <= 3500) {
+            if (monto <= 0) {
                 throw new Error("El monto debe ser mayor a 0");
             }
+
+            const horasTrabajadas = condiciones.porcentajeHoras || 100;
+            const montoFinal = (monto * horasTrabajadas) / 100;
 
             const pago = {
                 id: Date.now().toString(),
                 idEmpleador,
                 idEmpleado,
-                monto,
+                monto: montoFinal,
+                montoOriginal: monto,
                 fecha,
+                horasTrabajadas,
                 condiciones,
                 estado: "Pendiente",
-                fechaCreacion: new Date().toISOString()
+                fechaCreacion: new Date().toISOString(),
+                fechaPago: null
             };
 
             this.transacciones.agregarTransaccion(pago);
@@ -74,6 +84,28 @@ class SmartContract {
             console.error('Error en crearPagoPendiente:', error);
             return false;
         }
+    }
+
+    procesarPago(idPago) {
+        const pago = this.transacciones.buscarPago(idPago);
+        if (!pago || pago.estado !== 'Pendiente') return false;
+
+        const empleado = this.empleados[pago.idEmpleado];
+        const empleador = this.empleadores[pago.idEmpleador];
+
+        if (!empleado || !empleador) return false;
+
+        empleado.pagosRecibidos++;
+        empleado.totalRecibido += pago.monto;
+        empleador.pagosRealizados++;
+        empleador.totalPagado += pago.monto;
+
+        pago.estado = 'Cancelado';
+        pago.fechaPago = new Date().toISOString();
+
+        this.guardarDatos();
+        this.transacciones.actualizarEstadoPago(idPago, 'Cancelado');
+        return true;
     }
 
     obtenerPagosEmpleado(idEmpleado) {

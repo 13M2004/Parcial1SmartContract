@@ -29,7 +29,7 @@
                         <label><i class="fas fa-id-card"></i> ID de Usuario:</label>
                         <input type="text" id="idUsuario" placeholder="Ingrese su ID">
                     </div>
-                    <button onclick="iniciarSesion()" class="btn-primary">
+                    <button onclick="iniciarSesion()" class="btn-primario">
                         <i class="fas fa-sign-in-alt"></i> INGRESAR AL SISTEMA
                     </button>
                     <div id="mensajeLogin"></div>
@@ -62,8 +62,8 @@
                     <button class="menu-item" onclick="cargarVista('historialPagos')">
                         <i class="fas fa-history"></i> Historial de Pagos
                     </button>
-                    <button class="menu-item" onclick="cargarVista('boletas')">
-                        <i class="fas fa-file-pdf"></i> Boletas
+                    <button class="menu-item" onclick="cargarVista('plantilla')">
+                        <i class="fas fa-users"></i> Plantilla
                     </button>
                 </div>
 
@@ -78,28 +78,7 @@
                     <span id="nombreUsuario"></span>
                 </div>
                 <div id="vistaContenido" class="area-contenido">
-                    <!-- Vista de Registro de Pago -->
-                    <div class="vista-registro-pago oculto">
-                        <div class="formulario-registro">
-                            <div class="form-group">
-                                <label><i class="fas fa-user"></i> Empleado:</label>
-                                <select id="empleadoPago" required>
-                                    <option value="">Seleccione un empleado...</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label><i class="fas fa-money-bill-wave"></i> Monto:</label>
-                                <input type="number" id="montoPago" min="0" step="0.01" required>
-                            </div>
-                            <div class="form-group">
-                                <label><i class="fas fa-calendar"></i> Fecha:</label>
-                                <input type="date" id="fechaPago" required>
-                            </div>
-                            <button onclick="registrarPago()" class="btn-primary">
-                                <i class="fas fa-save"></i> Registrar Pago
-                            </button>
-                        </div>
-                    </div>
+                    <!-- Contenido dinámico -->
                 </div>
             </div>
         </div>
