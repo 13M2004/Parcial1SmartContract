@@ -60,54 +60,33 @@ function iniciarSesion() {
         return;
     }
 
-    const formatoPatrono = /^PAT[0-9]{3}$/;
-    const formatoEmpleado = /^EMP[0-9]{3}$/;
-
-    if (tipoUsuario === 'patrono' && !formatoPatrono.test(idUsuario)) {
-        mostrarMensajeLogin('ID de patrono inválido (Formato: PAT001)', 'error');
-        return;
-    }
-
-    if (tipoUsuario === 'empleado' && !formatoEmpleado.test(idUsuario)) {
-        mostrarMensajeLogin('ID de empleado inválido (Formato: EMP001)', 'error');
-        return;
-    }
-
     const usuario = USUARIOS_VALIDOS[idUsuario];
-    if (!usuario) {
-        mostrarMensajeLogin('Usuario no encontrado', 'error');
-        return;
-    }
-
-    if (usuario.tipo !== tipoUsuario) {
-        mostrarMensajeLogin(`El ID no corresponde a un ${tipoUsuario}`, 'error');
-        return;
-    }
-
-    if (usuario.estado !== 'Activo') {
-        mostrarMensajeLogin('Usuario inactivo', 'error');
+    if (!usuario || usuario.tipo !== tipoUsuario) {
+        mostrarMensajeLogin('Usuario no válido', 'error');
         return;
     }
 
     mostrarMensajeLogin('Inicio de sesión exitoso', 'exito');
     
-    setTimeout(() => {
-        document.getElementById('seccionLogin').classList.add('oculto');
-        const panelPrincipal = document.getElementById('panelPrincipal');
-        panelPrincipal.classList.remove('oculto');
-        panelPrincipal.classList.add('activo');
+    // Ocultar login y mostrar panel principal
+    document.getElementById('seccionLogin').classList.add('oculto');
+    const panelPrincipal = document.getElementById('panelPrincipal');
+    panelPrincipal.classList.remove('oculto');
 
-        if (tipoUsuario === 'patrono') {
-            document.getElementById('menuPatrono').classList.add('activo');
-            cargarVista('nuevoPago');
-        } else {
-            document.getElementById('menuEmpleado').classList.add('activo');
-            cargarVista('misPagos');
-        }
+    // Mostrar menú correspondiente
+    if (tipoUsuario === 'patrono') {
+        document.getElementById('menuPatrono').classList.remove('oculto');
+        document.getElementById('menuEmpleado').classList.add('oculto');
+    } else {
+        document.getElementById('menuEmpleado').classList.remove('oculto');
+        document.getElementById('menuPatrono').classList.add('oculto');
+    }
 
-        document.getElementById('nombreUsuario').textContent = usuario.nombre;
-        localStorage.setItem('usuarioActual', JSON.stringify({...usuario, id: idUsuario}));
-    }, 1000);
+    // Actualizar nombre de usuario
+    document.getElementById('nombreUsuario').textContent = usuario.nombre;
+    
+    // Guardar sesión
+    localStorage.setItem('usuarioActual', JSON.stringify({...usuario, id: idUsuario}));
 }
 
 function cerrarSesion() {
