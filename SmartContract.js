@@ -1,86 +1,134 @@
 import LinkedList from './LinkedList.js';
 
 class SmartContract {
-   constructor() {
-       this.transacciones = new LinkedList();
-       this.empleados = {};
-       this.empleadores = {};
-       this.saldos = {};
-   }
+    constructor() {
+        this.transacciones = new LinkedList();
+        this.empleados = {};
+        this.empleadores = {};
+        this.cargarDatos();
+    }
 
-   // Registrar un nuevo empleado
-   registrarEmpleado(id, nombre) {
-       this.empleados[id] = { nombre, pagos: [] };
-       this.saldos[id] = 0;
-       return true;
-   }
+    cargarDatos() {
+        const datosEmpleados = localStorage.getItem('empleados');
+        const datosEmpleadores = localStorage.getItem('empleadores');
+        
+        if (datosEmpleados) {
+            this.empleados = JSON.parse(datosEmpleados);
+        }
+        if (datosEmpleadores) {
+            this.empleadores = JSON.parse(datosEmpleadores);
+        }
+    }
 
-   // Crear un nuevo pago pendiente
-   crearPagoPendiente(idEmpleador, idEmpleado, monto, fecha, condiciones) {
-       try {
-           if (!this.empleadores[idEmpleador] || !this.empleados[idEmpleado]) {
-               throw new Error("Empleador o empleado no registrado");
-           }
+    guardarDatos() {
+        localStorage.setItem('empleados', JSON.stringify(this.empleados));
+        localStorage.setItem('empleadores', JSON.stringify(this.empleadores));
+    }
 
-           if (monto <= 0) {
-               throw new Error("El monto debe ser mayor a 0");
-           }
+    registrarEmpleado(id, nombre, puesto = 'Empleado') {
+        this.empleados[id] = { 
+            nombre, 
+            puesto,
+            estado: 'Activo',
+            fechaRegistro: new Date().toISOString()
+        };
+        this.guardarDatos();
+        return true;
+    }
 
-           const pago = {
-               id: Date.now(),
-               idEmpleador,
-               idEmpleado,
-               monto,
-               fecha,
-               condiciones,
-               estado: "Pendiente",
-               fechaCreacion: new Date()
-           };
+    registrarEmpleador(id, nombre, puesto = 'Patrono') {
+        this.empleadores[id] = {
+            nombre,
+            puesto,
+            estado: 'Activo',
+            fechaRegistro: new Date().toISOString()
+        };
+        this.guardarDatos();
+        return true;
+    }
 
-           this.transacciones.agregarTransaccion(pago);
-           return true;
-       } catch (error) {
-           console.error('Error en crearPagoPendiente:', error);
-           return false;
-       }
-   }
+    crearPagoPendiente(idEmpleador, idEmpleado, monto, fecha, condiciones) {
+        try {
+            if (!this.empleadores[idEmpleador] || !this.empleados[idEmpleado]) {
+                throw new Error("Empleador o empleado no registrado");
+            }
 
-   // Obtener pagos por empleado
-   obtenerPagosEmpleado(idEmpleado) {
-       if (!this.empleados[idEmpleado]) return [];
-       return this.transacciones.mostrarTransacciones().filter(pago => pago.idEmpleado === idEmpleado);
-   }
+            if (monto <= 3500) {
+                throw new Error("El monto debe ser mayor a 0");
+            }
 
-   // Obtener todos los pagos pendientes
-   obtenerPagosPendientes() {
-       return this.transacciones.obtenerPagosPendientes();
-   }
+            const pago = {
+                id: Date.now().toString(),
+                idEmpleador,
+                idEmpleado,
+                monto,
+                fecha,
+                condiciones,
+                estado: "Pendiente",
+                fechaCreacion: new Date().toISOString()
+            };
 
-   // Obtener todos los pagos realizados
-   obtenerPagosRealizados() {
-       return this.transacciones.obtenerPagosRealizados();
-   }
+            this.transacciones.agregarTransaccion(pago);
+            return true;
+        } catch (error) {
+            console.error('Error en crearPagoPendiente:', error);
+            return false;
+        }
+    }
 
-   // Actualizar estado de pago
-   actualizarEstadoPago(idPago, nuevoEstado) {
-       return this.transacciones.actualizarEstadoPago(idPago, nuevoEstado);
-   }
+    obtenerPagosEmpleado(idEmpleado) {
+        if (!this.empleados[idEmpleado]) return [];
+        return this.transacciones.mostrarTransacciones()
+            .filter(pago => pago.idEmpleado === idEmpleado);
+    }
 
-   // Obtener información del empleado
-   obtenerInfoEmpleado(idEmpleado) {
-       return this.empleados[idEmpleado] || null;
-   }
+    obtenerPagosEmpleador(idEmpleador) {
+        if (!this.empleadores[idEmpleador]) return [];
+        return this.transacciones.mostrarTransacciones()
+            .filter(pago => pago.idEmpleador === idEmpleador);
+    }
 
-   // Obtener información del empleador
-   obtenerInfoEmpleador(idEmpleador) {
-       return this.empleadores[idEmpleador] || null;
-   }
+    obtenerPagosPendientes() {
+        return this.transacciones.obtenerPagosPendientes();
+    }
 
-   // Verificar existencia de empleado
-   existeEmpleado(idEmpleado) {
-       return !!this.empleados[idEmpleado];
-   }
+    obtenerPagosRealizados() {
+        return this.transacciones.obtenerPagosRealizados();
+    }
 
+    actualizarEstadoPago(idPago, nuevoEstado) {
+        return this.transacciones.actualizarEstadoPago(idPago, nuevoEstado);
+    }
+
+    obtenerInfoEmpleado(idEmpleado) {
+        return this.empleados[idEmpleado] || null;
+    }
+
+    obtenerInfoEmpleador(idEmpleador) {
+        return this.empleadores[idEmpleador] || null;
+    }
+
+    existeEmpleado(idEmpleado) {
+        return !!this.empleados[idEmpleado];
+    }
+
+    existeEmpleador(idEmpleador) {
+        return !!this.empleadores[idEmpleador];
+    }
+
+    obtenerTodosLosEmpleados() {
+        return Object.entries(this.empleados).map(([id, datos]) => ({
+            id,
+            ...datos
+        }));
+    }
+
+    obtenerTodosLosEmpleadores() {
+        return Object.entries(this.empleadores).map(([id, datos]) => ({
+            id,
+            ...datos
+        }));
+    }
 }
 
 export default SmartContract;

@@ -74,6 +74,17 @@ class LinkedList {
     obtenerPagosRealizados() {
         return this.mostrarTransacciones().filter(pago => pago.estado === 'Pagado');
     }
+
+    buscarPago(id) {
+        let actual = this.cabeza;
+        while (actual) {
+            if (actual.datos.id === id) {
+                return actual.datos;
+            }
+            actual = actual.siguiente;
+        }
+        return null;
+    }
 }
 
 export default LinkedList;

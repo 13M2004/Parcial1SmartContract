@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SGE TECH - Sistema de Gestión Empresarial</title>
     <link rel="stylesheet" href="styles.css">
-    <!-- Agregamos íconos de Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
@@ -46,7 +45,7 @@
                 </div>
                 
                 <!-- Menú Patrono -->
-                <div id="menuPatrono" class="menu-lateral oculto">
+                <div id="menuPatrono" class="menu-opciones oculto">
                     <button class="menu-item" onclick="cargarVista('nuevoPago')">
                         <i class="fas fa-plus-circle"></i> Registro de Nuevo Pago
                     </button>
@@ -59,15 +58,12 @@
                 </div>
 
                 <!-- Menú Empleado -->
-                <div id="menuEmpleado" class="menu-lateral oculto">
+                <div id="menuEmpleado" class="menu-opciones oculto">
                     <button class="menu-item" onclick="cargarVista('historialPagos')">
-                        <i class="fas fa-history"></i> Historial de Pago
+                        <i class="fas fa-history"></i> Historial de Pagos
                     </button>
                     <button class="menu-item" onclick="cargarVista('boletas')">
                         <i class="fas fa-file-pdf"></i> Boletas
-                    </button>
-                    <button class="menu-item" onclick="cargarVista('plantilla')">
-                        <i class="fas fa-users"></i> Plantilla
                     </button>
                 </div>
 
@@ -82,12 +78,33 @@
                     <span id="nombreUsuario"></span>
                 </div>
                 <div id="vistaContenido" class="area-contenido">
-                    <!-- Aquí se cargará el contenido dinámico -->
+                    <!-- Vista de Registro de Pago -->
+                    <div class="vista-registro-pago oculto">
+                        <div class="formulario-registro">
+                            <div class="form-group">
+                                <label><i class="fas fa-user"></i> Empleado:</label>
+                                <select id="empleadoPago" required>
+                                    <option value="">Seleccione un empleado...</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-money-bill-wave"></i> Monto:</label>
+                                <input type="number" id="montoPago" min="0" step="0.01" required>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-calendar"></i> Fecha:</label>
+                                <input type="date" id="fechaPago" required>
+                            </div>
+                            <button onclick="registrarPago()" class="btn-primary">
+                                <i class="fas fa-save"></i> Registrar Pago
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="aplicacion.js"></script>
+    <script type="module" src="aplicacion.js"></script>
 </body>
 </html>
