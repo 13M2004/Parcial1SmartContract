@@ -3,21 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SGE TECH - Sistema de Pagos</title>
+    <title>SGE TECH - Sistema de Gestión Empresarial</title>
     <link rel="stylesheet" href="styles.css">
+    <!-- Agregamos íconos de Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <div class="container">
-        <!-- Sección de Login -->
+        <!-- Pantalla de Login -->
         <div id="seccionLogin" class="login-section">
             <div class="login-box">
-                <h1>SGE TECH</h1>
-                <p class="subtitle">Sistema de Gestión de Empleados</p>
+                <h1><i class="fas fa-building"></i> SGE TECH</h1>
+                <p class="subtitle">Sistema de Gestión Empresarial</p>
                 
                 <div class="login-form">
-                    <h2>Inicio de Sesión</h2>
+                    <h2><i class="fas fa-user-lock"></i> Inicio de Sesión</h2>
                     <div class="form-group">
-                        <label>Tipo de Usuario:</label>
+                        <label><i class="fas fa-users"></i> Tipo de Usuario:</label>
                         <select id="tipoUsuario">
                             <option value="">Seleccione...</option>
                             <option value="patrono">Patrono</option>
@@ -25,45 +27,67 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>ID de Usuario:</label>
+                        <label><i class="fas fa-id-card"></i> ID de Usuario:</label>
                         <input type="text" id="idUsuario" placeholder="Ingrese su ID">
                     </div>
-                    <button onclick="iniciarSesion()" class="btn-primary">INGRESAR AL SISTEMA</button>
+                    <button onclick="iniciarSesion()" class="btn-primary">
+                        <i class="fas fa-sign-in-alt"></i> INGRESAR AL SISTEMA
+                    </button>
                     <div id="mensajeLogin"></div>
                 </div>
             </div>
         </div>
 
-        <!-- Panel del Patrono -->
-        <div id="panelPatrono" class="panel oculto">
-            <div class="panel-header">
-                <h2>Panel de Control - Patrono</h2>
-                <button onclick="cerrarSesion()" class="btn-logout">CERRAR SESIÓN</button>
+        <!-- Panel Principal -->
+        <div id="panelPrincipal" class="panel-principal oculto">
+            <div class="sidebar">
+                <div class="logo-container">
+                    <h2><i class="fas fa-building"></i> SGE TECH</h2>
+                </div>
+                
+                <!-- Menú Patrono -->
+                <div id="menuPatrono" class="menu-lateral oculto">
+                    <button class="menu-item" onclick="cargarVista('nuevoPago')">
+                        <i class="fas fa-plus-circle"></i> Registro de Nuevo Pago
+                    </button>
+                    <button class="menu-item" onclick="cargarVista('historialPagos')">
+                        <i class="fas fa-history"></i> Historial de Pagos
+                    </button>
+                    <button class="menu-item" onclick="cargarVista('plantilla')">
+                        <i class="fas fa-users"></i> Plantilla
+                    </button>
+                </div>
+
+                <!-- Menú Empleado -->
+                <div id="menuEmpleado" class="menu-lateral oculto">
+                    <button class="menu-item" onclick="cargarVista('historialPagos')">
+                        <i class="fas fa-history"></i> Historial de Pago
+                    </button>
+                    <button class="menu-item" onclick="cargarVista('boletas')">
+                        <i class="fas fa-file-pdf"></i> Boletas
+                    </button>
+                    <button class="menu-item" onclick="cargarVista('plantilla')">
+                        <i class="fas fa-users"></i> Plantilla
+                    </button>
+                </div>
+
+                <button onclick="cerrarSesion()" class="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                </button>
             </div>
             
-            <!-- Menú de navegación -->
-            <div class="nav-menu">
-                <button onclick="cargarVista('nuevoPago')" class="nav-button">REGISTRAR PAGO</button>
-                <button onclick="cargarVista('pagosPendientes')" class="nav-button">PAGOS PENDIENTES</button>
-                <button onclick="cargarVista('historial')" class="nav-button">HISTORIAL</button>
+            <div class="contenido-principal">
+                <div class="header-principal">
+                    <h2 id="tituloSeccion">Bienvenido al Sistema</h2>
+                    <span id="nombreUsuario"></span>
+                </div>
+                <div id="vistaContenido" class="area-contenido">
+                    <!-- Aquí se cargará el contenido dinámico -->
+                </div>
             </div>
-
-            <!-- Contenedor principal donde se cargarán las vistas -->
-            <div id="vistaContenido" class="vista-contenedor"></div>
-        </div>
-        <!-- Panel del Empleado -->
-        <div id="panelEmpleado" class="panel oculto">
-            <div class="panel-header">
-                <h2>Panel de Control - Empleado</h2>
-                <button onclick="cerrarSesion()" class="btn-logout">CERRAR SESIÓN</button>
-            </div>
-            <div class="panel-buttons">
-                <button onclick="mostrarSeccionEmpleado('verPagos')" class="btn-action">VER MIS PAGOS</button>
-                <button onclick="mostrarSeccionEmpleado('boletas')" class="btn-action">BOLETAS DE PAGO</button>
-            </div>
-            <div id="contenidoEmpleado" class="panel-content"></div>
         </div>
     </div>
+
     <script src="aplicacion.js"></script>
 </body>
 </html>

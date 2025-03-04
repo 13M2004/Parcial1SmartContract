@@ -1,8 +1,7 @@
-// Funciones de inicio de sesión
-// Inicializar arreglo de pagos desde el almacenamiento local
+// Base de datos del sistema
 let pagos = JSON.parse(localStorage.getItem('pagos')) || [];
 
-// Configuración de usuarios válidos del sistema
+// Base de datos de usuarios válidos
 const USUARIOS_VALIDOS = {
     'PAT001': { tipo: 'patrono', nombre: 'Manuel Monzón', puesto: 'Patrono', estado: 'Activo' },
     'EMP001': { tipo: 'empleado', nombre: 'Nayeli Urrutia', puesto: 'Empleado', estado: 'Activo' },
@@ -10,400 +9,176 @@ const USUARIOS_VALIDOS = {
     'EMP003': { tipo: 'empleado', nombre: 'Alexander Palma', puesto: 'Empleado', estado: 'Activo' }
 };
 
-// Base de datos de usuarios para validación de inicio de sesión
-const usuarios = {
-    patrono: {
-        'PAT001': { tipo: 'patrono', nombre: 'Manuel Monzón' }
-    },
-    empleado: {
-        'EMP001': { tipo: 'empleado', nombre: 'Nayeli Urrutia' },
-        'EMP002': { tipo: 'empleado', nombre: 'Ivania Palma' },
-        'EMP003': { tipo: 'empleado', nombre: 'Alexander Palma' }
-    }
-};
-
-// Función para manejar el inicio de sesión
 function iniciarSesion() {
     const tipoUsuario = document.getElementById('tipoUsuario').value;
-    const idUsuario = document.getElementById('idUsuario').value;
-    const contenedorMensaje = document.getElementById('mensajeLogin');
+    const idUsuario = document.getElementById('idUsuario').value.toUpperCase();
+    const loginBox = document.querySelector('.login-box');
 
-    contenedorMensaje.innerHTML = '';
-
+    // Validación básica
     if (!tipoUsuario || !idUsuario) {
-        mostrarMensajeLogin('Por favor complete todos los campos', 'error');
+        mostrarMensajeLogin('Complete todos los campos', 'error');
         return;
     }
 
-    if (usuarios[tipoUsuario] && usuarios[tipoUsuario][idUsuario]) {
-        // Ocultar login con animación
-        const loginSection = document.getElementById('seccionLogin');
-        loginSection.style.opacity = '0';
-        loginSection.style.transform = 'translateY(-20px)';
-
-        setTimeout(() => {
-            loginSection.classList.add('oculto');
-            
-            // Mostrar panel correspondiente con animación
-            const panel = tipoUsuario === 'patrono' ? 
-                document.getElementById('panelPatrono') : 
-                document.getElementById('panelEmpleado');
-            
-            panel.classList.remove('oculto');
-            setTimeout(() => {
-                panel.classList.add('visible');
-                cargarMenuInicial(tipoUsuario);
-            }, 100);
-        }, 300);
-
-        localStorage.setItem('idUsuarioActual', idUsuario);
-        localStorage.setItem('tipoUsuarioActual', tipoUsuario);
-    } else {
+    // Validar usuario
+    const usuario = USUARIOS_VALIDOS[idUsuario];
+    if (!usuario || usuario.tipo !== tipoUsuario) {
         mostrarMensajeLogin('Usuario o tipo de usuario incorrecto', 'error');
+        return;
     }
+
+    // Inicio de sesión exitoso
+    const loginSection = document.getElementById('seccionLogin');
+    loginSection.classList.add('oculto');
+    document.getElementById('panelPrincipal').classList.remove('oculto');
+    
+    // Mostrar menú correspondiente
+    document.getElementById(`menu${tipoUsuario === 'patrono' ? 'Patrono' : 'Empleado'}`).classList.remove('oculto');
+    document.getElementById('nombreUsuario').textContent = usuario.nombre;
+    
+    // Guardar sesión
+    localStorage.setItem('usuarioActual', JSON.stringify(usuario));
 }
 
-function cargarMenuInicial(tipoUsuario) {
-    const contenedor = tipoUsuario === 'patrono' ? 
-        document.getElementById('contenidoPatrono') : 
-        document.getElementById('contenidoEmpleado');
-    
-    if (tipoUsuario === 'patrono') {
-        contenedor.innerHTML = `
-            <div class="menu-principal">
-                <h2>Panel de Control - Patrono</h2>
-                <div class="menu-botones">
-                    <button onclick="mostrarSeccionPatrono('nuevoPago')" class="btn-menu">Registrar Nuevo Pago</button>
-                    <button onclick="mostrarSeccionPatrono('pagosPendientes')" class="btn-menu">Pagos Pendientes</button>
-                    <button onclick="mostrarSeccionPatrono('historial')" class="btn-menu">Historial de Pagos</button>
-                </div>
-                <button onclick="cerrarSesion()" class="btn-logout">Cerrar Sesión</button>
-            </div>
-        `;
-    } else {
-        contenedor.innerHTML = `
-            <div class="menu-principal">
-                <h2>Panel de Control - Empleado</h2>
-                <div class="menu-botones">
-                    <button onclick="mostrarSeccionEmpleado('verPagos')" class="btn-menu">Ver Mis Pagos</button>
-                    <button onclick="mostrarSeccionEmpleado('boletas')" class="btn-menu">Boletas de Pago</button>
-                </div>
-                <button onclick="cerrarSesion()" class="btn-logout">Cerrar Sesión</button>
-            </div>
-        `;
-    }
-}
-function cargarNuevaVista(vista) {
-    const contenedor = document.getElementById('contenido-principal');
-    contenedor.querySelector('.contenido-dinamico').classList.remove('visible');
-    
-    setTimeout(() => {
-        // Cargar nuevo contenido
-        mostrarSeccionCorrespondiente(vista);
-        
-        setTimeout(() => {
-            contenedor.querySelector('.contenido-dinamico').classList.add('visible');
-        }, 100);
-    }, 300);
-}
-function mostrarMensajeLogin(mensaje, tipo) {
+function mostrarMensajeLogin(texto, tipo) {
     const contenedor = document.getElementById('mensajeLogin');
-    if (contenedor) {
-        contenedor.innerHTML = `<div class="mensaje ${tipo}">${mensaje}</div>`;
-        if (tipo === 'exito') {
-            setTimeout(() => {
-                contenedor.innerHTML = '';
-            }, 2000);
-        }
-    }
-}
-function cerrarSesion() {
-    localStorage.removeItem('idUsuarioActual');
-    localStorage.removeItem('tipoUsuarioActual');
-    document.getElementById('panelPatrono').classList.add('oculto');
-    document.getElementById('panelEmpleado').classList.add('oculto');
-    document.getElementById('seccionLogin').classList.remove('oculto');
-    document.getElementById('tipoUsuario').value = '';
-    document.getElementById('idUsuario').value = '';
+    contenedor.innerHTML = `<div class="mensaje ${tipo}">${texto}</div>`;
 }
 
-// Función para ocultar todas las secciones
-function ocultarTodasLasSecciones() {
-    const secciones = document.querySelectorAll('.seccion');
-    secciones.forEach(seccion => seccion.classList.add('oculto'));
-}
-// Funciones para el panel del patrono
-function mostrarSeccionPatrono(seccion) {
-    const contenidoPatrono = document.getElementById('contenidoPatrono');
-    
-    switch(seccion) {
+// Función para cargar vistas
+function cargarVista(vista) {
+    const contenedor = document.getElementById('vistaContenido');
+    const tituloSeccion = document.getElementById('tituloSeccion');
+
+    switch(vista) {
         case 'nuevoPago':
-            contenidoPatrono.innerHTML = `
-                <div class="seccion">
-                    <div class="seccion-header">
-                        <h3>Registrar Nuevo Pago</h3>
-                        <button onclick="volverMenu('patrono')" class="btn-cerrar">Cerrar</button>
-                    </div>
-                    <form id="formularioPago" onsubmit="return validarYEnviarPago(event)">
+            tituloSeccion.textContent = 'Registro de Nuevo Pago';
+            contenedor.innerHTML = `
+                <div class="formulario-registro">
+                    <form id="formPago" onsubmit="registrarPago(event)">
                         <div class="form-group">
-                            <label>ID del Empleado:</label>
-                            <input type="text" id="idEmpleado" required placeholder="Ejemplo: EMP001">
+                            <label>Empleado:</label>
+                            <select id="empleadoSelect" required>
+                                <option value="">Seleccione un empleado...</option>
+                                ${generarOpcionesEmpleados()}
+                            </select>
                         </div>
                         <div class="form-group">
                             <label>Monto (Q):</label>
-                            <input type="number" id="monto" required min="0" step="0.01">
+                            <input type="number" id="montoPago" required min="3500" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label>Asistencia (%):</label>
+                            <input type="number" id="asistencia" required min="40" max="100" value="100">
                         </div>
                         <div class="form-group">
                             <label>Fecha:</label>
                             <input type="date" id="fechaPago" required>
                         </div>
-                        <div class="form-group">
-                            <label>Asistencia (%):</label>
-                            <input type="number" id="asistencia" required min="0" max="100">
-                        </div>
-                        <div class="form-group">
-                            <label>Horas Trabajadas:</label>
-                            <input type="number" id="horasTrabajadas" required min="0">
-                        </div>
-                        <button type="submit" class="btn-action">Registrar Pago</button>
+                        <button type="submit" class="btn-registrar">
+                            <i class="fas fa-save"></i> Registrar Pago
+                        </button>
                     </form>
+                    <button onclick="cerrarVista()" class="btn-cerrar-vista">
+                        <i class="fas fa-times"></i> Cerrar
+                    </button>
                 </div>
             `;
+            inicializarFormularioPago();
             break;
 
-        case 'pagosPendientes':
-            contenidoPatrono.innerHTML = `
-                <div class="seccion">
-                    <div class="seccion-header">
-                        <h3>Pagos Pendientes</h3>
-                        <button onclick="volverMenu('patrono')" class="btn-cerrar">Cerrar</button>
-                    </div>
-                    <div class="contenedor-tabla">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Fecha</th>
-                                    <th>Empleado</th>
-                                    <th>Monto</th>
-                                    <th>Estado</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tablaPagosPendientes">
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            `;
-            cargarPagosPendientes();
-            break;
-
-        case 'historial':
-            contenidoPatrono.innerHTML = `
-                <div class="seccion">
-                    <div class="seccion-header">
-                        <h3>Historial de Pagos</h3>
-                        <button onclick="volverMenu('patrono')" class="btn-cerrar">Cerrar</button>
-                    </div>
-                    <div class="contenedor-tabla">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Fecha</th>
-                                    <th>Empleado</th>
-                                    <th>Monto</th>
-                                    <th>Estado</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tablaHistorial">
-                            </tbody>
-                        </table>
-                    </div>
+        case 'historialPagos':
+            tituloSeccion.textContent = 'Historial de Pagos';
+            contenedor.innerHTML = `
+                <div class="contenedor-tabla">
+                    <table class="tabla-datos">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Empleado</th>
+                                <th>Monto</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaHistorial"></tbody>
+                    </table>
+                    <button onclick="cerrarVista()" class="btn-cerrar-vista">
+                        <i class="fas fa-times"></i> Cerrar
+                    </button>
                 </div>
             `;
             cargarHistorialPagos();
             break;
     }
 }
-// Funciones para el panel del empleado
-function mostrarSeccionEmpleado(seccion) {
-    const contenidoEmpleado = document.getElementById('contenidoEmpleado');
-    
-    switch(seccion) {
-        case 'verPagos':
-            contenidoEmpleado.innerHTML = `
-                <div class="seccion">
-                    <div class="seccion-header">
-                        <h3>Mis Pagos</h3>
-                        <button onclick="volverMenu('empleado')" class="btn-cerrar">Cerrar</button>
-                    </div>
-                    <div class="contenedor-tabla">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Fecha</th>
-                                    <th>Monto</th>
-                                    <th>Estado</th>
-                                    <th>Detalles</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tablaPagosEmpleado">
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            `;
-            cargarPagosEmpleado();
-            break;
 
-        case 'boletas':
-            contenidoEmpleado.innerHTML = `
-                <div class="seccion">
-                    <div class="seccion-header">
-                        <h3>Mis Boletas de Pago</h3>
-                        <button onclick="volverMenu('empleado')" class="btn-cerrar">Cerrar</button>
-                    </div>
-                    <div class="contenedor-tabla">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Fecha</th>
-                                    <th>Monto</th>
-                                    <th>Detalles</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tablaBoletasEmpleado">
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            `;
-            cargarBoletasEmpleado();
-            break;
-    }
-}
-function volverMenu(tipo) {
-    if (tipo === 'patrono') {
-        document.getElementById('contenidoPatrono').innerHTML = '';
-    } else {
-        document.getElementById('contenidoEmpleado').innerHTML = '';
-    }
-}
-function mostrarHistorialPagos() {
-    const contenido = `
-        <div class="seccion">
-            <h3>Historial de Pagos</h3>
-            <div class="contenedor-tabla">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Fecha</th>
-                            <th>Empleado</th>
-                            <th>Monto</th>
-                            <th>Estado</th>
-                            <th>Detalles</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${pagos.map(pago => `
-                            <tr>
-                                <td>${pago.fecha}</td>
-                                <td>${USUARIOS_VALIDOS[pago.idEmpleado]?.nombre || 'No encontrado'}</td>
-                                <td>Q${pago.monto.toFixed(2)}</td>
-                                <td>${pago.estado}</td>
-                                <td>
-                                    Asistencia: ${pago.asistencia}%<br>
-                                    Horas: ${pago.horasTrabajadas}
-                                </td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    `;
-    document.getElementById('contenidoPatrono').innerHTML = contenido;
-}
-
-function validarYEnviarPago(evento) {
-    evento.preventDefault();
+// Función para cerrar la vista actual
+function cerrarVista() {
+    const contenedor = document.getElementById('vistaContenido');
+    const tituloSeccion = document.getElementById('tituloSeccion');
     
-    const idEmpleado = document.getElementById('idEmpleado').value;
-    const monto = parseFloat(document.getElementById('monto').value);
+    contenedor.innerHTML = '';
+    tituloSeccion.textContent = '';
+}
+function registrarPago(event) {
+    event.preventDefault();
+    
+    const empleadoId = document.getElementById('empleadoSelect').value;
+    const monto = parseFloat(document.getElementById('montoPago').value);
+    const asistencia = parseFloat(document.getElementById('asistencia').value);
     const fecha = document.getElementById('fechaPago').value;
-    const asistencia = parseInt(document.getElementById('asistencia').value);
-    const horasTrabajadas = parseInt(document.getElementById('horasTrabajadas').value);
-    
-    // Validaciones específicas
-    if (!USUARIOS_VALIDOS[idEmpleado]) {
-        mostrarMensajePago('ID de empleado no existe en el sistema', 'error');
-        return false;
+
+    if (!empleadoId || !monto || !asistencia || !fecha) {
+        mostrarMensaje('Complete todos los campos', 'error');
+        return;
     }
-    
-    if (monto <= 0) {
-        mostrarMensajePago('El monto debe ser mayor a 0', 'error');
-        return false;
+
+    if (asistencia < 40) {
+        mostrarMensaje('La asistencia mínima debe ser 40%', 'error');
+        return;
     }
-    
-    if (asistencia < 0 || asistencia > 100) {
-        mostrarMensajePago('La asistencia debe estar entre 0 y 100%', 'error');
-        return false;
+
+    if (monto < 3500) {
+        mostrarMensaje('El monto mínimo debe ser Q3,500', 'error');
+        return;
     }
-    
-    if (horasTrabajadas < 0) {
-        mostrarMensajePago('Las horas trabajadas no pueden ser negativas', 'error');
-        return false;
-    }
-    
-    const datosPago = {
-        id: `PAGO${Date.now()}`,
-        idEmpleado,
+
+    const nuevoPago = {
+        id: Date.now(),
+        idEmpleado: empleadoId,
+        nombreEmpleado: USUARIOS_VALIDOS[empleadoId].nombre,
         monto,
-        fecha,
         asistencia,
-        horasTrabajadas,
+        fecha,
         estado: 'Pendiente'
     };
+
+    pagos.push(nuevoPago);
+    localStorage.setItem('pagos', JSON.stringify(pagos));
     
-    guardarPago(datosPago);
-    mostrarMensajePago('Pago registrado exitosamente', 'exito');
-    evento.target.reset();
-    return false;
+    mostrarMensaje('Pago registrado exitosamente', 'exito');
+    document.getElementById('formPago').reset();
+    cargarHistorialPagos();
 }
 
-function mostrarMensajePago(mensaje, tipo) {
-    const contenedor = document.getElementById('mensajePago');
-    if (contenedor) {
-        contenedor.innerHTML = `<div class="mensaje ${tipo}">${mensaje}</div>`;
-        setTimeout(() => {
-            contenedor.innerHTML = '';
-        }, 3000);
-    }
-}
+function cargarHistorialPagos() {
+    const tabla = document.getElementById('tablaHistorial');
+    if (!tabla) return;
 
-// Función para cerrar tabla de empleado
-function cerrarTablaEmpleado() {
-    document.querySelector('#contenidoEmpleado').innerHTML = '';
-}
-
-// Inicialización del sistema
-document.addEventListener('DOMContentLoaded', () => {
-    const formularioPago = document.getElementById('formularioPago');
-    if (formularioPago) {
-        formularioPago.addEventListener('submit', validarYEnviarPago);
-    }
-});
-
-function cerrarSesion() {
-    location.reload();
-}
-
-function cerrarTabla() {
-    document.querySelector('.seccion-contenido:not(.oculto)').classList.add('oculto');
-}
-
-function mostrarMensaje(mensaje, tipo) {
-    const contenedorMensaje = document.getElementById('mensajeLogin');
-    contenedorMensaje.innerHTML = `<div class="mensaje ${tipo}">${mensaje}</div>`;
+    const pagosOrdenados = [...pagos].sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+    
+    tabla.innerHTML = pagosOrdenados.map(pago => `
+        <tr>
+            <td>${new Date(pago.fecha).toLocaleDateString()}</td>
+            <td>${pago.nombreEmpleado}</td>
+            <td>Q${pago.monto.toFixed(2)}</td>
+            <td><span class="estado-pago ${pago.estado.toLowerCase()}">${pago.estado}</span></td>
+            <td>
+                <button onclick="generarPDF('${pago.id}')" class="btn-pdf">
+                    <i class="fas fa-file-pdf"></i> PDF
+                </button>
+            </td>
+        </tr>
+    `).join('');
 }
