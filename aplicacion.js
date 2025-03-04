@@ -14,16 +14,42 @@ function iniciarSesion() {
     const idUsuario = document.getElementById('idUsuario').value.toUpperCase();
     const loginBox = document.querySelector('.login-box');
 
-    // Validación básica
+    // Validación de campos vacíos
     if (!tipoUsuario || !idUsuario) {
-        mostrarMensajeLogin('Complete todos los campos', 'error');
+        mostrarMensajeLogin('Por favor complete todos los campos', 'error');
         return;
     }
 
-    // Validar usuario
+    // Validación de formato de ID
+    const formatoPatrono = /^PAT[0-9]{3}$/;
+    const formatoEmpleado = /^EMP[0-9]{3}$/;
+
+    if (tipoUsuario === 'patrono' && !formatoPatrono.test(idUsuario)) {
+        mostrarMensajeLogin('ID de patrono inválido (Formato: PAT001)', 'error');
+        return;
+    }
+
+    if (tipoUsuario === 'empleado' && !formatoEmpleado.test(idUsuario)) {
+        mostrarMensajeLogin('ID de empleado inválido (Formato: EMP001)', 'error');
+        return;
+    }
+
+    // Validación de usuario existente
     const usuario = USUARIOS_VALIDOS[idUsuario];
-    if (!usuario || usuario.tipo !== tipoUsuario) {
-        mostrarMensajeLogin('Usuario o tipo de usuario incorrecto', 'error');
+    if (!usuario) {
+        mostrarMensajeLogin('Usuario no encontrado', 'error');
+        return;
+    }
+
+    // Validación de tipo de usuario
+    if (usuario.tipo !== tipoUsuario) {
+        mostrarMensajeLogin(`El ID no corresponde a un ${tipoUsuario}`, 'error');
+        return;
+    }
+
+    // Validación de estado
+    if (usuario.estado !== 'Activo') {
+        mostrarMensajeLogin('Usuario inactivo', 'error');
         return;
     }
 
@@ -43,7 +69,15 @@ function iniciarSesion() {
 function mostrarMensajeLogin(texto, tipo) {
     const contenedor = document.getElementById('mensajeLogin');
     contenedor.innerHTML = `<div class="mensaje ${tipo}">${texto}</div>`;
+    
+    // Auto-ocultar mensajes de éxito después de 3 segundos
+    if (tipo === 'exito') {
+        setTimeout(() => {
+            contenedor.innerHTML = '';
+        }, 3000);
+    }
 }
+
 
 // Función para cargar vistas
 function cargarVista(vista) {
@@ -53,44 +87,13 @@ function cargarVista(vista) {
     switch(vista) {
         case 'nuevoPago':
             tituloSeccion.textContent = 'Registro de Nuevo Pago';
-            contenedor.innerHTML = `
-                <div class="formulario-registro">
-                    <form id="formPago" onsubmit="registrarPago(event)">
-                        <div class="form-group">
-                            <label>Empleado:</label>
-                            <select id="empleadoSelect" required>
-                                <option value="">Seleccione un empleado...</option>
-                                ${generarOpcionesEmpleados()}
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Monto (Q):</label>
-                            <input type="number" id="montoPago" required min="3500" step="0.01">
-                        </div>
-                        <div class="form-group">
-                            <label>Asistencia (%):</label>
-                            <input type="number" id="asistencia" required min="40" max="100" value="100">
-                        </div>
-                        <div class="form-group">
-                            <label>Fecha:</label>
-                            <input type="date" id="fechaPago" required>
-                        </div>
-                        <button type="submit" class="btn-registrar">
-                            <i class="fas fa-save"></i> Registrar Pago
-                        </button>
-                    </form>
-                    <button onclick="cerrarVista()" class="btn-cerrar-vista">
-                        <i class="fas fa-times"></i> Cerrar
-                    </button>
-                </div>
-            `;
+            contenedor.innerHTML = generarFormularioPago();
             inicializarFormularioPago();
             break;
-
         case 'historialPagos':
             tituloSeccion.textContent = 'Historial de Pagos';
             contenedor.innerHTML = `
-                <div class="contenedor-tabla">
+                <div class="contenedor-tabla">;
                     <table class="tabla-datos">
                         <thead>
                             <tr>
@@ -103,36 +106,79 @@ function cargarVista(vista) {
                         </thead>
                         <tbody id="tablaHistorial"></tbody>
                     </table>
-                    <button onclick="cerrarVista()" class="btn-cerrar-vista">
-                        <i class="fas fa-times"></i> Cerrar
-                    </button>
                 </div>
             `;
             cargarHistorialPagos();
             break;
+
+        case 'plantilla':
+            tituloSeccion.textContent = 'Plantilla de Empleados';
+            mostrarPlantilla();
+            break;
     }
 }
 
-// Función para cerrar la vista actual
-function cerrarVista() {
-    const contenedor = document.getElementById('vistaContenido');
-    const tituloSeccion = document.getElementById('tituloSeccion');
-    
-    contenedor.innerHTML = '';
-    tituloSeccion.textContent = '';
+function generarFormularioPago() {
+    return `
+        <div class="formulario-registro">
+            <form id="formPago" onsubmit="registrarPago(event)">
+                <div class="form-group">
+                    <label>ID del Empleado:</label>
+                    <input type="text" id="idEmpleado" required pattern="EMP[0-9]{3}" placeholder="Ejemplo: EMP001">
+                </div>
+                <div class="form-group">
+                    <label>Empleado:</label>
+                    <select id="empleadoSelect" required>
+                        <option value="">Seleccione un empleado...</option>
+                        ${generarOpcionesEmpleados()}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Monto (Q):</label>
+                    <input type="number" id="montoPago" required min="3500" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>Asistencia (%):</label>
+                    <input type="number" id="asistencia" required min="0" max="100" value="100">
+                    <div id="mensajeAsistencia" class="mensaje-validacion"></div>
+                </div>
+                <div class="form-group">
+                    <label>Fecha:</label>
+                    <input type="date" id="fechaPago" required>
+                </div>
+                <button type="submit" class="btn-registrar">Registrar Pago</button>
+            </form>
+        </div>
+    `;
+}
+
+function inicializarFormularioPago() {
+    const formPago = document.getElementById('formPago');
+    const asistenciaInput = document.getElementById('asistencia');
+    const montoInput = document.getElementById('montoPago');
+    const mensajeAsistencia = document.getElementById('mensajeAsistencia');
+
+    asistenciaInput.addEventListener('input', function() {
+        const asistencia = parseFloat(this.value);
+        if (asistencia < 40) {
+            mensajeAsistencia.textContent = 'La asistencia mínima debe ser 40%';
+            mensajeAsistencia.classList.add('error');
+            montoInput.value = '';
+            montoInput.disabled = true;
+        } else {
+            mensajeAsistencia.textContent = '';
+            mensajeAsistencia.classList.remove('error');
+            montoInput.disabled = false;
+        }
+    });
 }
 function registrarPago(event) {
     event.preventDefault();
     
-    const empleadoId = document.getElementById('empleadoSelect').value;
+    const idEmpleado = document.getElementById('idEmpleado').value;
     const monto = parseFloat(document.getElementById('montoPago').value);
     const asistencia = parseFloat(document.getElementById('asistencia').value);
     const fecha = document.getElementById('fechaPago').value;
-
-    if (!empleadoId || !monto || !asistencia || !fecha) {
-        mostrarMensaje('Complete todos los campos', 'error');
-        return;
-    }
 
     if (asistencia < 40) {
         mostrarMensaje('La asistencia mínima debe ser 40%', 'error');
@@ -146,12 +192,11 @@ function registrarPago(event) {
 
     const nuevoPago = {
         id: Date.now(),
-        idEmpleado: empleadoId,
-        nombreEmpleado: USUARIOS_VALIDOS[empleadoId].nombre,
+        idEmpleado,
         monto,
         asistencia,
         fecha,
-        estado: 'Pendiente'
+        estado: 'pendiente'
     };
 
     pagos.push(nuevoPago);
@@ -159,21 +204,18 @@ function registrarPago(event) {
     
     mostrarMensaje('Pago registrado exitosamente', 'exito');
     document.getElementById('formPago').reset();
-    cargarHistorialPagos();
 }
 
 function cargarHistorialPagos() {
     const tabla = document.getElementById('tablaHistorial');
-    if (!tabla) return;
-
     const pagosOrdenados = [...pagos].sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
     
     tabla.innerHTML = pagosOrdenados.map(pago => `
         <tr>
-            <td>${new Date(pago.fecha).toLocaleDateString()}</td>
-            <td>${pago.nombreEmpleado}</td>
+            <td>${pago.fecha}</td>
+            <td>${USUARIOS_VALIDOS[pago.idEmpleado].nombre}</td>
             <td>Q${pago.monto.toFixed(2)}</td>
-            <td><span class="estado-pago ${pago.estado.toLowerCase()}">${pago.estado}</span></td>
+            <td><span class="estado-pago ${pago.estado}">${pago.estado}</span></td>
             <td>
                 <button onclick="generarPDF('${pago.id}')" class="btn-pdf">
                     <i class="fas fa-file-pdf"></i> PDF
