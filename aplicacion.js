@@ -25,9 +25,26 @@ function mostrarMensaje(texto, tipo) {
     document.body.appendChild(mensaje);
     setTimeout(() => mensaje.remove(), 3000);
 }
-
-function iniciarSesion(event) {
+function mostrarPanelPrincipal(usuario) {
+    // Ocultar login y mostrar panel
+    document.getElementById('seccionLogin').classList.add('oculto');
+    document.getElementById('panelPrincipal').classList.remove('oculto');
+    
+    // Mostrar nombre de usuario
+    document.getElementById('nombreUsuario').textContent = `${usuario.nombre} (${usuario.puesto})`;
+    
+    // Mostrar menú correspondiente
+    document.getElementById('menuPatrono').classList.add('oculto');
+    document.getElementById('menuEmpleado').classList.add('oculto');
+    document.getElementById(`menu${usuario.tipo.charAt(0).toUpperCase() + usuario.tipo.slice(1)}`).classList.remove('oculto');
+    
+    // Cargar vista inicial
+    document.getElementById('tituloSeccion').textContent = `Bienvenido, ${usuario.nombre}`;
+    document.getElementById('vistaContenido').innerHTML = '<p>Seleccione una opción del menú para comenzar.</p>';
+}
+export function iniciarSesion(event) {
     if (event) event.preventDefault();
+    console.log('Iniciando sesión...'); // Para debugging
     
     const tipoUsuario = document.getElementById('tipoUsuario').value;
     const idUsuario = document.getElementById('idUsuario').value.toUpperCase();
@@ -42,67 +59,42 @@ function iniciarSesion(event) {
             throw new Error('Credenciales inválidas');
         }
 
+        usuario.id = idUsuario;
         localStorage.setItem('usuarioActual', JSON.stringify(usuario));
+        
+        console.log('Usuario válido:', usuario); // Para debugging
         mostrarPanelPrincipal(usuario);
         mostrarMensaje('Bienvenido al sistema', 'exito');
         
     } catch (error) {
+        console.error('Error:', error.message); // Para debugging
         mostrarMensaje(error.message, 'error');
-        document.querySelector('.login-box').classList.add('shake');
-        setTimeout(() => {
-            document.querySelector('.login-box').classList.remove('shake');
-        }, 500);
     }
 }
-
-function mostrarPanelPrincipal(usuario) {
-    document.getElementById('seccionLogin').classList.add('oculto');
-    const panelPrincipal = document.getElementById('panelPrincipal');
-    panelPrincipal.classList.remove('oculto');
-
-    const menuPatrono = document.getElementById('menuPatrono');
-    const menuEmpleado = document.getElementById('menuEmpleado');
-    
-    if (usuario.tipo === 'patrono') {
-        menuPatrono.classList.remove('oculto');
-        menuEmpleado.classList.add('oculto');
-        cargarVista('nuevoPago');
-    } else {
-        menuEmpleado.classList.remove('oculto');
-        menuPatrono.classList.add('oculto');
-        cargarVista('historialPagos');
-    }
-
-    document.getElementById('nombreUsuario').textContent = usuario.nombre;
-}
-
-function cargarVista(vista) {
+export function cargarVista(vista) {
+    const usuario = validarSesion();
+    if (!usuario) return;
+    // Actualizar menú activo
+    document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('activo'));
+    document.querySelector(`[onclick="cargarVista('${vista}')"]`).classList.add('activo');
     const contenido = document.getElementById('vistaContenido');
     contenido.innerHTML = '';
     
     switch(vista) {
         case 'nuevoPago':
             mostrarFormularioPago();
-            document.getElementById('tituloSeccion').textContent = 'Nuevo Pago';
             break;
         case 'historialPagos':
-            mostrarHistorialCompleto();
-            document.getElementById('tituloSeccion').textContent = 'Historial de Pagos';
+            mostrarHistorialPagos(usuario);
             break;
         case 'plantilla':
             mostrarPlantilla();
-            document.getElementById('tituloSeccion').textContent = 'Plantilla de Empleados';
             break;
         case 'boletas':
-            mostrarBoletas();
-            document.getElementById('tituloSeccion').textContent = 'Mis Boletas';
+            mostrarBoletas(usuario);
             break;
-        default:
-            contenido.innerHTML = '<p>Seleccione una opción del menú</p>';
-            document.getElementById('tituloSeccion').textContent = 'Bienvenido';
     }
 }
-
 function cerrarSesion() {
     localStorage.removeItem('usuarioActual');
     document.getElementById('panelPrincipal').classList.add('oculto');
@@ -111,7 +103,19 @@ function cerrarSesion() {
     document.getElementById('tipoUsuario').value = '';
     mostrarMensaje('Sesión cerrada', 'exito');
 }
+function validarSesion() {
+    const usuario = JSON.parse(localStorage.getItem('usuarioActual'));
+    if (!usuario) {
+        cerrarSesion();
+        return false;
+    }
+    return usuario;
+}
 
+function limpiarMensajes() {
+    const mensajes = document.querySelectorAll('.mensaje-sistema');
+    mensajes.forEach(mensaje => mensaje.remove());
+}
 // Resto de funciones para manejar pagos y vistas
 function mostrarFormularioPago() {
     const template = document.createElement('template');
@@ -151,10 +155,18 @@ function registrarPago(event) {
     const monto = parseFloat(document.getElementById('montoPago').value);
     const fecha = document.getElementById('fechaPago').value;
     const porcentaje = document.getElementById('porcentajeHoras').value;
-    const usuario = JSON.parse(localStorage.getItem('usuarioActual'));
+    const usuario = validarSesion();
 
-    if (!usuario) {
-        mostrarMensaje('Sesión inválida', 'error');
+    if (!usuario || usuario.tipo !== 'patrono') {
+        mostrarMensaje('No tiene permisos para realizar esta acción', 'error');
+        return;
+    }
+
+    // Validar fecha
+    const fechaPago = new Date(fecha);
+    const hoy = new Date();
+    if (fechaPago < hoy) {
+        mostrarMensaje('La fecha no puede ser anterior a hoy', 'error');
         return;
     }
 
@@ -212,15 +224,73 @@ function mostrarHistorialCompleto() {
     `;
     document.getElementById('vistaContenido').appendChild(template.content);
 }
-
+function mostrarPlantilla() {
+    const template = document.createElement('template');
+    template.innerHTML = `
+        <div class="contenedor-tabla">
+            <table class="tabla-datos">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Puesto</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${Object.entries(USUARIOS_VALIDOS)
+                        .filter(([_, user]) => user.tipo === 'empleado')
+                        .map(([id, user]) => `
+                            <tr>
+                                <td>${id}</td>
+                                <td>${user.nombre}</td>
+                                <td>${user.puesto}</td>
+                                <td><span class="estado-usuario ${user.estado.toLowerCase()}">${user.estado}</span></td>
+                            </tr>
+                        `).join('')}
+                </tbody>
+            </table>
+        </div>
+    `;
+    document.getElementById('vistaContenido').appendChild(template.content);
+}
 function mostrarBoletas() {
-    const usuario = JSON.parse(localStorage.getItem('usuarioActual'));
+    const usuario = validarSesion();
     if (!usuario) {
         mostrarMensaje('Sesión inválida', 'error');
         return;
     }
     const pagos = contratoInteligente.obtenerPagosEmpleado(usuario.id);
-    mostrarHistorialCompleto(pagos);
+    const template = document.createElement('template');
+    template.innerHTML = `
+        <div class="contenedor-tabla">
+            <table class="tabla-datos">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Monto</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${pagos.length ? pagos.map(pago => `
+                        <tr>
+                            <td>${pago.fecha}</td>
+                            <td>Q${pago.monto.toFixed(2)}</td>
+                            <td><span class="estado-pago ${pago.estado.toLowerCase()}">${pago.estado}</span></td>
+                            <td>
+                                <button onclick="verPDF('${pago.id}')" class="btn-pdf">
+                                    <i class="fas fa-file-pdf"></i> Ver PDF
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('') : '<tr><td colspan="4">No hay boletas registradas</td></tr>'}
+                </tbody>
+            </table>
+        </div>
+    `;
+    document.getElementById('vistaContenido').appendChild(template.content);
 }
 
 function verPDF(idPago) {
@@ -229,11 +299,3 @@ function verPDF(idPago) {
         window.open(`generarPDF.html?id=${idPago}`, '_blank');
     }
 }
-
-// Verificar sesión al cargar la página
-document.addEventListener('DOMContentLoaded', () => {
-    const usuario = JSON.parse(localStorage.getItem('usuarioActual'));
-    if (usuario) {
-        mostrarPanelPrincipal(usuario);
-    }
-});

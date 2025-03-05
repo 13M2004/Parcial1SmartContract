@@ -30,7 +30,7 @@
                         <label><i class="fas fa-id-card"></i> ID de Usuario:</label>
                         <input type="text" id="idUsuario" placeholder="Ingrese su ID">
                     </div>
-                    <button onclick="iniciarSesion()" class="btn-primario">
+                    <button onclick="iniciarSesion(event)"  class="btn-primario">
                         <i class="fas fa-sign-in-alt"></i> INGRESAR AL SISTEMA
                     </button>
                     <div id="mensajeLogin"></div>
@@ -60,6 +60,9 @@
 
                 <!-- Menú Empleado -->
                 <div id="menuEmpleado" class="menu-opciones oculto">
+                    <button class="menu-item" onclick="cargarVista('boletas')">
+                        <i class="fas fa-file-invoice-dollar"></i> Mis Boletas
+                    </button>
                     <button class="menu-item" onclick="cargarVista('historialPagos')">
                         <i class="fas fa-history"></i> Historial de Pagos
                     </button>
@@ -79,12 +82,17 @@
                     <span id="nombreUsuario"></span>
                 </div>
                 <div id="vistaContenido" class="area-contenido">
-                    <!-- Contenido dinámico -->
+                    <!-- Contenido de las vistas se cargará aquí -->
                 </div>
             </div>
         </div>
     </div>
-
-    <script type="module" src="aplicacion.js"></script>
+    <script type="module">
+        import { iniciarSesion, cargarVista, cerrarSesion, mostrarPanelPrincipal } from './aplicacion.js';
+        window.iniciarSesion = iniciarSesion;
+        window.cargarVista = cargarVista;
+        window.cerrarSesion = cerrarSesion;
+        window.mostrarPanelPrincipal = mostrarPanelPrincipal;
+    </script>
 </body>
 </html>
