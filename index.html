@@ -3,96 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SGE TECH - Sistema de Gestión Empresarial</title>
+    <title>Smart Contract - Sistema de Pagos</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
-    <div class="container">
-        <!-- Pantalla de Login -->
-        <div id="seccionLogin" class="login-section">
-            <div class="login-box">
-                <h1><i class="fas fa-building"></i> SGE TECH</h1>
-                <p class="subtitle">Sistema de Gestión Empresarial</p>
-                
-                <div class="login-form">
-                    <h2><i class="fas fa-user-lock"></i> Inicio de Sesión</h2>
-                    <div class="form-group">
-                        <label><i class="fas fa-users"></i> Tipo de Usuario:</label>
-                        <select id="tipoUsuario">
-                            <option value="">Seleccione...</option>
-                            <option value="patrono">Patrono</option>
-                            <option value="empleado">Empleado</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-id-card"></i> ID de Usuario:</label>
-                        <input type="text" id="idUsuario" placeholder="Ingrese su ID">
-                    </div>
-                    <button onclick="iniciarSesion(event)"  class="btn-primario">
-                        <i class="fas fa-sign-in-alt"></i> INGRESAR AL SISTEMA
-                    </button>
-                    <div id="mensajeLogin"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Panel Principal -->
-        <div id="panelPrincipal" class="panel-principal oculto">
-            <div class="barra-lateral">
-                <div class="contenedor-logo">
-                    <h2><i class="fas fa-building"></i> SGE TECH</h2>
-                </div>
-                
-                <!-- Menú Patrono -->
-                <div id="menuPatrono" class="menu-opciones oculto">
-                    <button class="menu-item" onclick="cargarVista('nuevoPago')">
-                        <i class="fas fa-plus-circle"></i> Registro de Nuevo Pago
-                    </button>
-                    <button class="menu-item" onclick="cargarVista('historialPagos')">
-                        <i class="fas fa-history"></i> Historial de Pagos
-                    </button>
-                    <button class="menu-item" onclick="cargarVista('plantilla')">
-                        <i class="fas fa-users"></i> Plantilla
-                    </button>
-                </div>
-
-                <!-- Menú Empleado -->
-                <div id="menuEmpleado" class="menu-opciones oculto">
-                    <button class="menu-item" onclick="cargarVista('boletas')">
-                        <i class="fas fa-file-invoice-dollar"></i> Mis Boletas
-                    </button>
-                    <button class="menu-item" onclick="cargarVista('historialPagos')">
-                        <i class="fas fa-history"></i> Historial de Pagos
-                    </button>
-                    <button class="menu-item" onclick="cargarVista('plantilla')">
-                        <i class="fas fa-users"></i> Plantilla
-                    </button>
-                </div>
-
-                <button onclick="cerrarSesion()" class="btn-logout">
-                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
-                </button>
-            </div>
+    <div class="login-section">
+        <div class="login-box">
+            <h1><i class="fas fa-building"></i> Smart Contract</h1>
+            <p class="subtitulo">Sistema de Gestión de Pagos</p>
             
-            <div class="contenido-principal">
-                <div class="header-principal">
-                    <h2 id="tituloSeccion">Bienvenido al Sistema</h2>
-                    <span id="nombreUsuario"></span>
+            <form id="loginForm">
+                <div class="grupo-formulario">
+                    <label><i class="fas fa-id-card"></i> Usuario:</label>
+                    <input type="text" id="usuario" placeholder="Ingrese su ID" required>
                 </div>
-                <div id="vistaContenido" class="area-contenido">
-                    <!-- Contenido de las vistas se cargará aquí -->
+                <div class="grupo-formulario">
+                    <label><i class="fas fa-key"></i> Contraseña:</label>
+                    <input type="password" id="password" placeholder="Ingrese su contraseña" required>
                 </div>
-            </div>
+                <button type="button" onclick="validarLogin()" class="btn-primario">
+                    <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+                </button>
+                <div id="mensajeLogin"></div>
+            </form>
         </div>
     </div>
-    <script type="module">
-        import { iniciarSesion, cargarVista, cerrarSesion, mostrarPanelPrincipal } from './aplicacion.js';
-        window.iniciarSesion = iniciarSesion;
-        window.cargarVista = cargarVista;
-        window.cerrarSesion = cerrarSesion;
-        window.mostrarPanelPrincipal = mostrarPanelPrincipal;
+
+    <script>
+        function validarLogin() {
+            const usuario = document.getElementById('usuario').value;
+            const password = document.getElementById('password').value;
+            
+            if (!usuario || !password) {
+                mostrarMensaje('Complete todos los campos', 'error');
+                return;
+            }
+
+            const usuarios = {
+                'PAT001': { tipo: 'patron', nombre: 'Manuel Monzón' },
+                'EMP001': { tipo: 'empleado', nombre: 'Nayeli Urrutia' },
+                'EMP002': { tipo: 'empleado', nombre: 'Ivania Palma' },
+                'EMP003': { tipo: 'empleado', nombre: 'Alexander Palma' }
+            };
+
+            if (usuarios[usuario] && password === '123') {
+                mostrarMensaje('Inicio de sesión exitoso', 'exito');
+                localStorage.setItem('usuarioActual', JSON.stringify(usuarios[usuario]));
+                
+                setTimeout(() => {
+                    window.location.href = 'panel.html';
+                }, 1000);
+            } else {
+                mostrarMensaje('Credenciales incorrectas', 'error');
+            }
+        }
+
+        function mostrarMensaje(texto, tipo) {
+            const mensajeDiv = document.getElementById('mensajeLogin');
+            mensajeDiv.innerHTML = `
+                <div class="mensaje ${tipo}">
+                    <i class="fas fa-${tipo === 'error' ? 'exclamation-circle' : 'check-circle'}"></i>
+                    ${texto}
+                </div>
+            `;
+        }
     </script>
 </body>
 </html>

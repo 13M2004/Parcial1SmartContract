@@ -1,209 +1,274 @@
-/* Variables del sistema */
 :root {
-    --color-primario: #2C3E50;    /* Azul oscuro para menú */
-    --color-secundario: #34495E;   /* Azul secundario */
-    --color-acento: #3498DB;      /* Azul claro para botones */
-    --color-exito: #2ECC71;       /* Verde para estados exitosos */
-    --color-error: #E74C3C;       /* Rojo para errores */
-    --color-advertencia: #F1C40F; /* Amarillo para pendientes */
-    --color-texto: #2C3E50;       /* Color texto principal */
-    --color-texto-claro: #ECF0F1; /* Color texto claro */
-    --color-fondo: #F5F6FA;       /* Fondo general */
+    --color-primario: #2C3E50;
+    --color-secundario: #34495E;
+    --color-acento: #3498DB;
+    --color-texto: #2C3E50;
+    --color-texto-claro: #ECF0F1;
+    --color-fondo: #F5F6FA;
+    --color-error: #e74c3c;
+    --color-exito: #2ecc71;
+    --color-advertencia: #f1c40f;
+    --sombra-suave: 0 5px 15px rgba(0,0,0,0.1);
+    --transicion: all 0.3s ease;
 }
 
-/* Utilidades */
-.oculto {
-    display: none !important;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
 }
 
-/* Pantalla de inicio de sesión */
+body {
+    background: var(--color-fondo);
+    min-height: 100vh;
+}
+
+/* Pantalla de Login */
 .login-section {
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
     background: linear-gradient(135deg, var(--color-primario), var(--color-secundario));
-    position: fixed;
-    width: 100%;
-    top: 0;
-    left: 0;
-    z-index: 1000;
+    padding: 20px;
 }
 
 .login-box {
     background: white;
     padding: 40px;
     border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    box-shadow: var(--sombra-suave);
     width: 100%;
-    max-width: 450px;
-    text-align: center;
+    max-width: 400px;
 }
 
 .login-box h1 {
     color: var(--color-primario);
-    margin-bottom: 10px;
+    font-size: 2.2em;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
 }
 
 .login-box .subtitulo {
-    color: var(--color-texto);
+    color: #666;
     margin-bottom: 30px;
+    text-align: center;
 }
 
-.login-box .btn-primario {
+.grupo-formulario {
+    margin-bottom: 25px;
+}
+
+.grupo-formulario label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--color-texto);
+    font-weight: 500;
+}
+
+.grupo-formulario input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #eee;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: var(--transicion);
+}
+
+.grupo-formulario input:focus {
+    border-color: var(--color-acento);
+    outline: none;
+}
+
+.btn-primario {
     width: 100%;
     padding: 12px;
-    background-color: var(--color-acento);
+    background: var(--color-acento);
     color: white;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     font-size: 16px;
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.3s ease;
-    margin-top: 20px;
-}
-
-.login-box .btn-primario:hover {
-    background-color: var(--color-primario);
-}
-
-/* Panel principal */
-.panel-principal {
-    display: none;
-}
-
-.panel-principal.activo {
+    transition: var(--transicion);
     display: flex;
-    width: 100%;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
-/* Barra lateral */
+.btn-primario:hover {
+    background: #2980b9;
+    transform: translateY(-2px);
+}
+
+/* Panel Principal */
+.panel-principal {
+    display: flex;
+    min-height: 100vh;
+}
+
 .barra-lateral {
     width: 280px;
-    background-color: var(--color-primario);
-    height: 100vh;
+    background: var(--color-primario);
+    padding: 25px;
     position: fixed;
-    padding: 20px 0;
+    height: 100vh;
     color: var(--color-texto-claro);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
 .contenedor-logo {
-    padding: 20px;
-    text-align: center;
+    padding: 15px 0;
     border-bottom: 1px solid rgba(255,255,255,0.1);
-    margin-bottom: 20px;
 }
 
 .contenedor-logo h2 {
-    color: var(--color-texto-claro);
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 10px;
     font-size: 1.5em;
-    margin: 0;
 }
 
-/* Menú de opciones */
 .menu-opciones {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    padding: 0 20px;
 }
 
 .menu-item {
-    width: 100%;
-    padding: 12px 15px;
-    background: transparent;
-    border: 1px solid rgba(255,255,255,0.1);
-    color: white;
-    border-radius: 5px;
-    text-align: left;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.3s ease;
     display: flex;
     align-items: center;
     gap: 10px;
+    padding: 12px 15px;
+    color: white;
+    background: rgba(255,255,255,0.1);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: var(--transicion);
+    width: 100%;
+    text-align: left;
+    font-size: 14px;
 }
 
-.menu-item i {
-    width: 20px;
+.menu-item:hover {
+    background: rgba(255,255,255,0.2);
+    transform: translateX(5px);
 }
 
-.menu-item:hover,
-.menu-item.activo {
-    background-color: var(--color-acento);
-    border-color: var(--color-acento);
+.btn-cerrar-sesion {
+    margin-top: auto;
+    padding: 12px;
+    background: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: var(--transicion);
 }
 
-/* Área de contenido */
+.btn-cerrar-sesion:hover {
+    background: #c0392b;
+}
+
+.contenido-principal {
+    margin-left: 280px;
+    padding: 30px;
+    min-height: 100vh;
+}
+
+.contenedor-logo {
+    padding: 20px 0;
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    margin-bottom: 30px;
+}
+
+.menu-opciones {
+    display: none;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.menu-opciones.activo {
+    display: flex;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 15px;
+    color: var(--color-texto-claro);
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: var(--transicion);
+    width: 100%;
+    text-align: left;
+    font-size: 15px;
+}
+
+.menu-item:hover {
+    background: rgba(255,255,255,0.1);
+    transform: translateX(5px);
+}
+
 .contenido-principal {
     margin-left: 280px;
     flex: 1;
     padding: 30px;
-    background-color: var(--color-fondo);
-    min-height: 100vh;
+    background: var(--color-fondo);
 }
 
-.encabezado-contenido {
+.header-principal {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 30px;
-}
-
-.encabezado-contenido h2 {
-    color: var(--color-texto);
-    font-size: 24px;
-    margin: 0 0 10px 0;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #eee;
 }
 
 /* Tablas */
-.contenedor-tabla {
+.tabla-historial-pagos,
+.tabla-planilla {
+    width: 100%;
     background: white;
     border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-    padding: 20px;
-    margin-bottom: 20px;
-    overflow-x: auto;
+    overflow: hidden;
+    box-shadow: var(--sombra-suave);
 }
 
-.tabla-datos {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.tabla-datos th {
-    background-color: var(--color-primario);
-    color: var(--color-texto-claro);
-    padding: 15px;
+.tabla-historial-pagos th,
+.tabla-planilla th {
+    background: var(--color-primario);
+    color: white;
+    padding: 15px 20px;
     text-align: left;
 }
 
-.tabla-datos td {
-    padding: 12px 15px;
+.tabla-historial-pagos td,
+.tabla-planilla td {
+    padding: 15px 20px;
     border-bottom: 1px solid #eee;
 }
-.estado-pago, .estado-usuario {
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.9em;
-    font-weight: 500;
-}
-.estado-pago.pendiente {
-    background-color: #fff3cd;
-    color: #856404;
-}
-.estado-pago.completado {
-    background-color: #d4edda;
-    color: #155724;
-}
-.estado-usuario.activo {
-    background-color: #d4edda;
-    color: #155724;
-}
-.estado-usuario.inactivo {
-    background-color: #f8d7da;
-    color: #721c24;
-}
-.estado-pago,
-.estado-empleado {
+
+/* Estados */
+.estado-pago {
     padding: 6px 12px;
     border-radius: 20px;
     font-size: 14px;
@@ -211,344 +276,60 @@
 }
 
 .pendiente {
-    background-color: var(--color-advertencia);
+    background: var(--color-advertencia);
     color: #000;
 }
 
-.activo {
-    background-color: var(--color-exito);
-    color: white;
-}
-
-.inactivo,
 .cancelado {
-    background-color: var(--color-error);
+    background: var(--color-exito);
     color: white;
 }
 
-/* Formularios */
-.formulario-registro {
+/* Cheque PDF */
+.cheque-pdf {
     background: white;
-    padding: 25px;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-}
-
-.grupo-formulario {
-    margin-bottom: 20px;
-}
-
-.grupo-formulario label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 500;
-    color: var(--color-texto);
-}
-
-.grupo-formulario input,
-.grupo-formulario select {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 14px;
-}
-
-/* Botones */
-.btn-cerrar-sesion {
-    position: absolute;
-    bottom: 20px;
-    left: 15px;
-    width: calc(100% - 30px);
-    padding: 12px;
-    background-color: transparent;
-    border: 1px solid rgba(255,255,255,0.1);
-    color: white;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.btn-cerrar-sesion:hover {
-    background-color: rgba(255,255,255,0.1);
-}
-
-.btn-pdf {
-    background-color: var(--color-acento);
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-/* Mensajes del sistema */
-.mensaje-sistema {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    padding: 12px 20px;
-    border-radius: 6px;
-    font-size: 14px;
-    z-index: 1000;
-}
-
-.mensaje {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    justify-content: center;
-    transition: all 0.3s ease;
-}
-
-.mensaje i {
-    font-size: 1.2em;
-}
-/* Mensajes de login */
-.login-box #mensajeLogin {
-    margin-top: 20px;
-    padding: 10px;
-    border-radius: 6px;
-}
-
-.login-box #mensajeLogin .mensaje.error {
-    background-color: var(--color-error);
-    color: white;
-}
-
-.login-box #mensajeLogin .mensaje.exito {
-    background-color: var(--color-exito);
-    color: white;
-}
-
-/* Estilos específicos para menús */
-#menuPatrono, #menuEmpleado {
-    display: none;
-}
-
-#menuPatrono.activo, #menuEmpleado.activo {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    padding: 20px;
-}
-
-/* Mejoras en la cabecera */
-.header-principal {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid rgba(0,0,0,0.1);
-}
-
-#nombreUsuario {
-    color: var(--color-texto);
-    font-weight: 500;
-    font-size: 16px;
-}
-
-/* Mejoras en botones */
-.btn-primario {
-    background-color: var(--color-acento);
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.btn-primario:hover {
-    background-color: var(--color-primario);
-}
-
-/* Mejoras en inputs */
-input:focus,
-select:focus {
-    outline: none;
-    border-color: var(--color-acento);
-    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
-}
-
-/* Animaciones */
-.shake {
-    animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
-}
-
-@keyframes shake {
-    10%, 90% { transform: translate3d(-1px, 0, 0); }
-    20%, 80% { transform: translate3d(2px, 0, 0); }
-    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
-    40%, 60% { transform: translate3d(4px, 0, 0); }
-}
-
-/* Nuevos estilos para la vista de transacciones */
-.transaccion-item {
-    background: white;
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 10px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    transition: transform 0.2s ease;
-}
-
-.transaccion-item:hover {
-    transform: translateY(-2px);
-}
-
-.transaccion-info {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-}
-
-.transaccion-estado {
-    font-weight: 500;
-    padding: 4px 8px;
-    border-radius: 4px;
-}
-
-.estado-pendiente {
-    background-color: var(--color-advertencia);
-    color: #000;
-}
-
-.estado-cancelado {
-    background-color: var(--color-exito);
-    color: white;
-}
-
-/* Estilos para la lista enlazada visual */
-.lista-transacciones {
-    position: relative;
-    padding: 20px;
-}
-
-.nodo-transaccion {
-    position: relative;
-    padding: 15px;
-    background: white;
-    border-radius: 8px;
-    margin-bottom: 30px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.nodo-transaccion::after {
-    content: '';
-    position: absolute;
-    bottom: -20px;
-    left: 50%;
-    width: 2px;
-    height: 20px;
-    background-color: var(--color-acento);
-}
-
-.nodo-transaccion:last-child::after {
-    display: none;
-}
-
-/* Mejoras en los formularios */
-.form-group {
-    margin-bottom: 20px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 8px;
-    color: var(--color-texto);
-    font-weight: 500;
-}
-
-.form-group input,
-.form-group select {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    transition: all 0.3s ease;
-}
-
-.form-group input:focus,
-.form-group select:focus {
-    border-color: var(--color-acento);
-    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
-    outline: none;
-}
-
-/* Nuevos estilos para el formulario de pago */
-.vista-registro-pago {
-    background: white;
-    padding: 25px;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-    margin-bottom: 20px;
-}
-
-.botones-grupo {
-    display: flex;
-    gap: 10px;
-    margin-top: 20px;
-}
-
-.btn-secundario {
-    background-color: #95a5a6;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.btn-secundario:hover {
-    background-color: #7f8c8d;
-}
-
-/* Estilos para el PDF */
-.vista-pdf {
-    background: white;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    max-width: 800px;
-    margin: 20px auto;
-}
-
-.cheque-container {
+    padding: 40px;
     border: 2px solid #000;
-    padding: 20px;
-    margin: 20px 0;
+    margin: 20px auto;
+    max-width: 800px;
     position: relative;
-    background: #fff;
+    box-shadow: var(--sombra-suave);
 }
 
-.cheque-header {
+.cheque-pdf-header {
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
+    border-bottom: 2px solid #000;
+    padding-bottom: 20px;
+}
+
+.cheque-pdf-monto {
+    font-size: 28px;
+    font-weight: bold;
+    text-align: right;
+    margin: 30px 0;
     border-bottom: 1px solid #000;
     padding-bottom: 10px;
 }
 
-.cheque-monto {
-    font-size: 24px;
-    font-weight: bold;
-    text-align: right;
-    margin: 20px 0;
+.cheque-pdf-contenido {
+    margin-top: 30px;
 }
 
-.cheque-fecha {
-    position: absolute;
-    top: 20px;
-    right: 20px;
+.cheque-pdf-firma {
+    margin-top: 50px;
+    text-align: center;
 }
 
+.linea-firma {
+    width: 200px;
+    border-top: 1px solid #000;
+    margin: 10px auto;
+}
 
-/* Diseño responsive */
+/* Responsive */
 @media (max-width: 768px) {
-    .sidebar {
+    .barra-lateral {
         width: 100%;
         height: auto;
         position: relative;
@@ -559,12 +340,227 @@ select:focus {
         padding: 15px;
     }
 
+    .login-box {
+        margin: 20px;
+        padding: 20px;
+    }
+}
+
+/* Mensajes de validación */
+.mensaje {
+    margin-top: 20px;
+    padding: 12px 15px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    animation: fadeIn 0.3s ease;
+}
+
+.mensaje.error {
+    background-color: var(--color-error);
+    color: white;
+}
+
+.mensaje.exito {
+    background-color: var(--color-exito);
+    color: white;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.grupo-formulario input:invalid {
+    border-color: var(--color-error);
+}
+
+.grupo-formulario input:focus {
+    border-color: var(--color-acento);
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+/* Contenedores de tablas y formularios */
+.tabla-container, .formulario-container {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: var(--sombra-suave);
+    margin: 20px;
+}
+
+.tabla-datos {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.tabla-datos th {
+    background: var(--color-primario);
+    color: white;
+    padding: 15px;
+    text-align: left;
+}
+
+.resumen-planilla {
+    margin-top: 30px;
+    padding: 20px;
+    background: var(--color-fondo);
+    border-radius: 8px;
+    border-left: 4px solid var(--color-primario);
+}
+
+.resumen-planilla h3 {
+    color: var(--color-primario);
+    margin-bottom: 15px;
+}
+
+.resumen-planilla p {
+    margin: 8px 0;
+    color: var(--color-texto);
+    font-size: 0.95em;
+}
+
+.tabla-datos tr:hover {
+    background-color: rgba(52, 152, 219, 0.05);
+}
+
+.tabla-datos td {
+    vertical-align: middle;
+}
+
+/* Estados y badges */
+.estado {
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 0.9em;
+    font-weight: 500;
+}
+
+.estado.pendiente {
+    background: var(--color-advertencia);
+    color: #000;
+}
+
+.estado.cancelado {
+    background: var(--color-error);
+    color: white;
+}
+
+.estado.activo {
+    background: var(--color-exito);
+    color: white;
+}
+
+/* Botones de acción */
+.btn-accion {
+    padding: 8px;
+    border: none;
+    border-radius: 5px;
+    background: var(--color-primario);
+    color: white;
+    cursor: pointer;
+    margin: 0 5px;
+    transition: var(--transicion);
+}
+
+.btn-accion:hover {
+    background: var(--color-secundario);
+    transform: translateY(-2px);
+}
+
+/* Formularios */
+.formulario-container h2 {
+    color: var(--color-primario);
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #eee;
+}
+
+.botones-grupo {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    justify-content: flex-end;
+}
+
+/* Mensajes */
+.mensaje-formulario {
+    margin: 15px 0;
+}
+
+.mensaje {
+    padding: 12px 15px;
+    border-radius: 8px;
+    margin-top: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: fadeIn 0.3s ease;
+}
+
+.mensaje.error {
+    background: var(--color-error);
+    color: white;
+}
+
+.mensaje.exito {
+    background: var(--color-exito);
+    color: white;
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.mensaje-info {
+    text-align: center;
+    padding: 20px;
+    color: var(--color-texto);
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .tabla-container, .formulario-container {
+        margin: 10px;
+        padding: 15px;
+    }
+
+    .tabla-datos {
+        display: block;
+        overflow-x: auto;
+    }
+
     .botones-grupo {
         flex-direction: column;
     }
 
-    .vista-pdf {
-        margin: 10px;
-        padding: 15px;
+    .btn-accion {
+        width: 100%;
+        margin: 5px 0;
     }
+}
+
+.btn-secundario {
+    background: #95a5a6;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: var(--transicion);
+}
+
+.btn-secundario:hover {
+    background: #7f8c8d;
 }
