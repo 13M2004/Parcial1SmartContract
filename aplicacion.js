@@ -67,6 +67,7 @@ function inicializarPanel() {
     const menuPatrono = document.getElementById('menuPatrono');
     const menuEmpleado = document.getElementById('menuEmpleado');
 
+    // Asegurar que los menús estén visibles según el tipo de usuario
     if (usuario.tipo === 'patron') {
         menuPatrono.style.display = 'flex';
         menuEmpleado.style.display = 'none';
@@ -75,6 +76,9 @@ function inicializarPanel() {
         menuEmpleado.style.display = 'flex';
     }
 }
+
+// Asegurar que el script se ejecute cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', inicializarPanel);
 
 function cerrarSesion() {
     // Limpiar datos de sesión
@@ -114,7 +118,7 @@ function mostrarRegistroPago() {
     contenidoDinamico.innerHTML = `
         <div class="formulario-container">
             <h2><i class="fas fa-money-bill-wave"></i> Registro de Nuevo Pago</h2>
-            <form id="formPago" onsubmit="event.preventDefault(); validarYRegistrarPago();">
+            <form id="formPago" onsubmit="event.preventDefault(); registrarPago();">
                 <div class="grupo-formulario">
                     <label><i class="fas fa-user"></i> Empleado:</label>
                     <select id="idEmpleado" required>
@@ -126,23 +130,19 @@ function mostrarRegistroPago() {
                 </div>
                 <div class="grupo-formulario">
                     <label><i class="fas fa-dollar-sign"></i> Monto (Q):</label>
-                    <input type="number" id="monto" min="3000" step="0.01" required placeholder="Mínimo Q3,000">
+                    <input type="number" id="monto" min="3000" step="0.01" required>
                 </div>
                 <div class="grupo-formulario">
                     <label><i class="fas fa-calendar"></i> Fecha:</label>
                     <input type="date" id="fecha" required>
                 </div>
                 <div class="grupo-formulario">
-                    <label><i class="fas fa-chart-pie"></i> Asistencia (%):</label>
-                    <input type="number" id="asistencia" min="0" max="100" required placeholder="Mínimo 30%">
+                    <label><i class="fas fa-percentage"></i> Asistencia (%):</label>
+                    <input type="number" id="asistencia" min="0" max="100" required>
                 </div>
-                <div id="mensajeFormulario"></div>
                 <div class="botones-grupo">
                     <button type="submit" class="btn-primario">
                         <i class="fas fa-save"></i> Guardar
-                    </button>
-                    <button type="button" class="btn-secundario" onclick="limpiarFormulario()">
-                        <i class="fas fa-times"></i> Cancelar
                     </button>
                 </div>
             </form>
@@ -150,44 +150,48 @@ function mostrarRegistroPago() {
     `;
 }
 
-// Función para Historial de Pagos
-// Función para mostrar historial de pagos del empleado
-function mostrarHistorialEmpleado() {
-    const usuarioActual = JSON.parse(localStorage.getItem('usuarioActual'));
+// Función para mostrar el historial de pagos
+function mostrarHistorialPagos() {
     const pagos = JSON.parse(localStorage.getItem('pagos') || '[]');
-    const misPagos = pagos.filter(pago => pago.idEmpleado === usuarioActual.id);
-
     const contenidoDinamico = document.getElementById('contenidoDinamico');
+    
     contenidoDinamico.innerHTML = `
         <div class="tabla-container">
-            <h2><i class="fas fa-history"></i> Mi Historial de Pagos</h2>
+            <h2><i class="fas fa-history"></i> Historial de Pagos</h2>
             <table class="tabla-datos">
                 <thead>
                     <tr>
+                        <th>Empleado</th>
                         <th>Fecha</th>
                         <th>Monto</th>
                         <th>Asistencia</th>
                         <th>Estado</th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
-                    ${misPagos.map(pago => `
+                    ${pagos.map(pago => `
                         <tr>
+                            <td>${obtenerNombreEmpleado(pago.idEmpleado)}</td>
                             <td>${new Date(pago.fecha).toLocaleDateString()}</td>
                             <td>Q ${pago.monto.toFixed(2)}</td>
                             <td>${pago.asistencia}%</td>
                             <td><span class="estado ${pago.estado}">${pago.estado}</span></td>
+                            <td>
+                                <button class="btn-accion" onclick="generarPDF('${pago.id}')">
+                                    <i class="fas fa-file-pdf"></i>
+                                </button>
+                            </td>
                         </tr>
                     `).join('')}
                 </tbody>
             </table>
-            ${misPagos.length === 0 ? '<p class="mensaje-info">No hay pagos registrados aún.</p>' : ''}
         </div>
     `;
 }
 
-// Función para mostrar planilla (vista de empleado)
-function mostrarPlanillaEmpleado() {
+// Función para mostrar la planilla
+function mostrarPlanilla() {
     const empleados = [
         { id: 'PAT001', nombre: 'Manuel Monzón', puesto: 'Patrono', estado: 'Activo' },
         { id: 'EMP001', nombre: 'Nayeli Urrutia', puesto: 'Empleado', estado: 'Activo' },
@@ -206,6 +210,7 @@ function mostrarPlanillaEmpleado() {
                         <th>Nombre</th>
                         <th>Puesto</th>
                         <th>Estado</th>
+                        <th>Total Pagos</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -215,6 +220,7 @@ function mostrarPlanillaEmpleado() {
                             <td>${emp.nombre}</td>
                             <td>${emp.puesto}</td>
                             <td><span class="estado ${emp.estado.toLowerCase()}">${emp.estado}</span></td>
+                            <td>Q ${calcularTotalPagos(emp.id)}</td>
                         </tr>
                     `).join('')}
                 </tbody>
@@ -223,7 +229,156 @@ function mostrarPlanillaEmpleado() {
     `;
 }
 
-// Exportar las funciones
+// Funciones auxiliares
+function obtenerNombreEmpleado(id) {
+    const empleados = {
+        'EMP001': 'Nayeli Urrutia',
+        'EMP002': 'Ivania Palma',
+        'EMP003': 'Alexander Palma'
+    };
+    return empleados[id] || 'Desconocido';
+}
+
+function calcularTotalPagos(id) {
+    const pagos = JSON.parse(localStorage.getItem('pagos') || '[]');
+    return pagos
+        .filter(p => p.idEmpleado === id)
+        .reduce((total, p) => total + p.monto, 0)
+        .toFixed(2);
+}
+
+function registrarPago() {
+    const pago = {
+        id: Date.now().toString(),
+        idEmpleado: document.getElementById('idEmpleado').value,
+        monto: parseFloat(document.getElementById('monto').value),
+        fecha: document.getElementById('fecha').value,
+        asistencia: parseFloat(document.getElementById('asistencia').value),
+        estado: 'pendiente'
+    };
+
+    if (pago.asistencia < 30) {
+        alert('La asistencia debe ser mayor al 30%');
+        return;
+    }
+
+    if (pago.monto < 3000) {
+        alert('El monto debe ser mayor a Q3,000');
+        return;
+    }
+
+    const pagos = JSON.parse(localStorage.getItem('pagos') || '[]');
+    pagos.push(pago);
+    localStorage.setItem('pagos', JSON.stringify(pagos));
+    
+    alert('Pago registrado exitosamente');
+    mostrarHistorialPagos();
+}
+
+// Exportar funciones
+window.mostrarRegistroPago = mostrarRegistroPago;
+window.mostrarHistorialPagos = mostrarHistorialPagos;
+window.mostrarPlanilla = mostrarPlanilla;
+window.registrarPago = registrarPago;
+
+// Función para mostrar el historial de pagos del empleado
+function mostrarHistorialEmpleado() {
+    const usuarioActual = JSON.parse(localStorage.getItem('usuarioActual'));
+    const pagos = JSON.parse(localStorage.getItem('pagos') || '[]');
+    const misPagos = pagos.filter(pago => pago.idEmpleado === usuarioActual.id);
+
+    const contenidoDinamico = document.getElementById('contenidoDinamico');
+    contenidoDinamico.innerHTML = `
+        <div class="tabla-container">
+            <h2><i class="fas fa-history"></i> Mi Historial de Pagos</h2>
+            <table class="tabla-datos">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Monto</th>
+                        <th>Asistencia</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${misPagos.length === 0 ? `
+                        <tr>
+                            <td colspan="5" class="mensaje-vacio">No hay pagos registrados</td>
+                        </tr>
+                    ` : misPagos.map(pago => `
+                        <tr>
+                            <td>${new Date(pago.fecha).toLocaleDateString()}</td>
+                            <td>Q ${pago.monto.toFixed(2)}</td>
+                            <td>${pago.asistencia}%</td>
+                            <td><span class="estado ${pago.estado.toLowerCase()}">${pago.estado}</span></td>
+                            <td>
+                                <button class="btn-accion" onclick="verDetallePago('${pago.id}')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+    `;
+}
+
+// Función para mostrar la planilla general
+function mostrarPlanillaEmpleado() {
+    const empleados = [
+        { id: 'PAT001', nombre: 'Manuel Monzón', puesto: 'Patrono', estado: 'Activo', salarioBase: 15000 },
+        { id: 'EMP001', nombre: 'Nayeli Urrutia', puesto: 'Empleado', estado: 'Activo', salarioBase: 5000 },
+        { id: 'EMP002', nombre: 'Ivania Palma', puesto: 'Empleado', estado: 'Activo', salarioBase: 5000 },
+        { id: 'EMP003', nombre: 'Alexander Palma', puesto: 'Empleado', estado: 'Activo', salarioBase: 5000 }
+    ];
+
+    const contenidoDinamico = document.getElementById('contenidoDinamico');
+    contenidoDinamico.innerHTML = `
+        <div class="tabla-container">
+            <h2><i class="fas fa-users"></i> Planilla General</h2>
+            <table class="tabla-datos">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Puesto</th>
+                        <th>Estado</th>
+                        <th>Salario Base</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${empleados.map(emp => `
+                        <tr>
+                            <td>${emp.id}</td>
+                            <td>${emp.nombre}</td>
+                            <td>${emp.puesto}</td>
+                            <td><span class="estado ${emp.estado.toLowerCase()}">${emp.estado}</span></td>
+                            <td>Q ${emp.salarioBase.toFixed(2)}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+    `;
+}
+
+// Agregar estilos adicionales
+const estilos = `
+    .mensaje-vacio {
+        text-align: center;
+        padding: 20px;
+        color: #666;
+        font-style: italic;
+    }
+`;
+
+const styleSheet = document.createElement("style");
+styleSheet.innerText = estilos;
+document.head.appendChild(styleSheet);
+
+// Exportar funciones
 window.mostrarHistorialEmpleado = mostrarHistorialEmpleado;
 window.mostrarPlanillaEmpleado = mostrarPlanillaEmpleado;
 
@@ -238,8 +393,8 @@ function mostrarHistorialPagos() {
                 <thead>
                     <tr>
                         <th>Empleado</th>
-                        <th>Monto</th>
                         <th>Fecha</th>
+                        <th>Monto</th>
                         <th>Asistencia</th>
                         <th>Estado</th>
                         <th>Acciones</th>
@@ -249,8 +404,8 @@ function mostrarHistorialPagos() {
                     ${pagos.map(pago => `
                         <tr>
                             <td>${obtenerNombreEmpleado(pago.idEmpleado)}</td>
-                            <td>Q ${pago.monto.toFixed(2)}</td>
                             <td>${new Date(pago.fecha).toLocaleDateString()}</td>
+                            <td>${pago.monto.toFixed(2)}</td>
                             <td>${pago.asistencia}%</td>
                             <td><span class="estado ${pago.estado}">${pago.estado}</span></td>
                             <td>
@@ -271,212 +426,6 @@ function mostrarHistorialPagos() {
 
 // Función para Planilla
 function mostrarPlanilla() {
-    const empleados = [
-        { id: 'PAT001', nombre: 'Manuel Monzón', puesto: 'Patrono', estado: 'Activo', salarioBase: 15000 },
-        { id: 'EMP001', nombre: 'Nayeli Urrutia', puesto: 'Empleado', estado: 'Activo', salarioBase: 5000 },
-        { id: 'EMP002', nombre: 'Ivania Palma', puesto: 'Empleado', estado: 'Activo', salarioBase: 5000 },
-        { id: 'EMP003', nombre: 'Alexander Palma', puesto: 'Empleado', estado: 'Activo', salarioBase: 5000 }
-    ];
-
-    const contenidoDinamico = document.getElementById('contenidoDinamico');
-    contenidoDinamico.innerHTML = `
-        <div class="tabla-container">
-            <h2><i class="fas fa-users"></i> Planilla General</h2>
-            <table class="tabla-datos">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Nombre</th>
-                        <th>Puesto</th>
-                        <th>Estado</th>
-                        <th>Salario Base</th>
-                        <th>Total Pagos</th>
-                        <th>Promedio Asistencia</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${empleados.map(emp => {
-                        const totalPagos = calcularTotalPagos(emp.id);
-                        const promedioAsistencia = calcularPromedioAsistencia(emp.id);
-                        return `
-                            <tr>
-                                <td>${emp.id}</td>
-                                <td>${emp.nombre}</td>
-                                <td>${emp.puesto}</td>
-                                <td><span class="estado ${emp.estado.toLowerCase()}">${emp.estado}</span></td>
-                                <td>Q ${emp.salarioBase.toFixed(2)}</td>
-                                <td>Q ${totalPagos}</td>
-                                <td>${promedioAsistencia}%</td>
-                            </tr>
-                        `;
-                    }).join('')}
-                </tbody>
-            </table>
-            <div class="resumen-planilla">
-                <h3>Resumen de Planilla</h3>
-                <p>Total Empleados: ${empleados.length - 1}</p>
-                <p>Total Salarios Base: Q ${empleados.reduce((sum, emp) => sum + emp.salarioBase, 0).toFixed(2)}</p>
-            </div>
-        </div>
-    `;
-}
-
-function calcularPromedioAsistencia(idEmpleado) {
-    const pagos = JSON.parse(localStorage.getItem('pagos') || '[]');
-    const pagosFiltrados = pagos.filter(p => p.idEmpleado === idEmpleado);
-    if (pagosFiltrados.length === 0) return '0.00';
-    const promedio = pagosFiltrados.reduce((sum, p) => sum + p.asistencia, 0) / pagosFiltrados.length;
-    return promedio.toFixed(2);
-}
-
-// Funciones auxiliares
-function validarYRegistrarPago() {
-    const idEmpleado = document.getElementById('idEmpleado').value;
-    const monto = parseFloat(document.getElementById('monto').value);
-    const fecha = document.getElementById('fecha').value;
-    const asistencia = parseFloat(document.getElementById('asistencia').value);
-
-    if (!idEmpleado || !monto || !fecha || !asistencia) {
-        mostrarMensajeFormulario('Complete todos los campos', 'error');
-        return;
-    }
-
-    if (monto < 3000) {
-        mostrarMensajeFormulario('El monto debe ser mayor a Q3,000', 'error');
-        return;
-    }
-
-    if (asistencia < 30) {
-        mostrarMensajeFormulario('La asistencia debe ser mayor al 30%', 'error');
-        return;
-    }
-
-    const pago = {
-        idEmpleado,
-        monto,
-        fecha,
-        asistencia,
-        estado: 'pendiente'
-    };
-
-    const pagos = JSON.parse(localStorage.getItem('pagos') || '[]');
-    pagos.push(pago);
-    localStorage.setItem('pagos', JSON.stringify(pagos));
-
-    mostrarMensajeFormulario('Pago registrado exitosamente', 'exito');
-    setTimeout(() => mostrarHistorialPagos(), 1500);
-}
-
-function obtenerNombreEmpleado(id) {
-    const empleados = {
-        'EMP001': 'Nayeli Urrutia',
-        'EMP002': 'Ivania Palma',
-        'EMP003': 'Alexander Palma'
-    };
-    return empleados[id] || 'Desconocido';
-}
-
-function calcularTotalPagos(idEmpleado) {
-    const pagos = JSON.parse(localStorage.getItem('pagos') || '[]');
-    return pagos
-        .filter(p => p.idEmpleado === idEmpleado && p.estado !== 'cancelado')
-        .reduce((total, p) => total + p.monto, 0)
-        .toFixed(2);
-}
-
-// Exportar funciones
-window.mostrarRegistroPago = mostrarRegistroPago;
-window.mostrarHistorialPagos = mostrarHistorialPagos;
-window.mostrarPlanilla = mostrarPlanilla;
-window.validarYRegistrarPago = validarYRegistrarPago;
-window.generarPDF = generarPDF;
-window.cancelarPago = cancelarPago;
-
-function mostrarMensajeFormulario(texto, tipo) {
-    const mensajeDiv = document.getElementById('mensajeFormulario');
-    mensajeDiv.innerHTML = `
-        <div class="mensaje ${tipo}">
-            <i class="fas fa-${tipo === 'error' ? 'exclamation-circle' : 'check-circle'}"></i>
-            ${texto}
-        </div>
-    `;
-}
-
-function limpiarFormulario() {
-    document.getElementById('formPago').reset();
-    document.getElementById('mensajeFormulario').innerHTML = '';
-}
-
-// Agregar al objeto window para acceso global
-window.mostrarRegistroPago = mostrarRegistroPago;
-window.validarYRegistrarPago = validarYRegistrarPago;
-window.limpiarFormulario = limpiarFormulario;
-
-export function registrarNuevoPago() {
-    const datos = {
-        idEmpleado: parseInt(document.getElementById('idEmpleado').value),
-        monto: parseFloat(document.getElementById('monto').value),
-        fecha: document.getElementById('fecha').value,
-        porcentajeHoras: parseInt(document.getElementById('porcentajeHoras').value)
-    };
-
-    smartContract.registrarPago(datos);
-    mostrarMensaje('Pago registrado exitosamente', 'exito');
-    mostrarHistorialPagos();
-}
-
-export function mostrarHistorialPagos() {
-    const usuario = JSON.parse(sessionStorage.getItem('usuario'));
-    const pagos = usuario.tipo === 'patron' ? 
-        smartContract.obtenerPagos() : 
-        smartContract.obtenerPagosEmpleado(usuario.id);
-
-    const contenido = `
-        <div class="contenedor-tabla">
-            <h3>Historial de Pagos</h3>
-            <table class="tabla-historial-pagos">
-                <thead>
-                    <tr>
-                        ${usuario.tipo === 'patron' ? '<th>Empleado</th>' : ''}
-                        <th>Monto</th>
-                        <th>Fecha</th>
-                        <th>Estado</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${pagos.map(pago => {
-                        const empleado = smartContract.obtenerEmpleado(pago.idEmpleado);
-                        return `
-                            <tr>
-                                ${usuario.tipo === 'patron' ? `<td>${empleado.nombre}</td>` : ''}
-                                <td>Q ${pago.monto.toFixed(2)}</td>
-                                <td>${new Date(pago.fecha).toLocaleDateString()}</td>
-                                <td><span class="estado-pago ${pago.estado}">${pago.estado}</span></td>
-                                <td>
-                                    ${usuario.tipo === 'patron' && pago.estado === 'pendiente' ? 
-                                        `<button class="btn-cancelar-pago" onclick="cancelarPago(${pago.id})">
-                                            <i class="fas fa-times"></i> Cancelar
-                                        </button>` : 
-                                        pago.estado === 'cancelado' ?
-                                        `<button class="btn-pdf" onclick="verPDF(${pago.id})">
-                                            <i class="fas fa-file-pdf"></i> Ver PDF
-                                        </button>` : ''}
-                                </td>
-                            </tr>
-                        `;
-                    }).join('')}
-                </tbody>
-            </table>
-            <button class="btn-cerrar-vista" onclick="cerrarVista()">
-                <i class="fas fa-times"></i> Cerrar
-            </button>
-        </div>
-    `;
-    document.getElementById('contenidoDinamico').innerHTML = contenido;
-}
-
-export function mostrarPlanilla() {
     const contenido = `
         <div class="contenedor-tabla">
             <h3>Planilla de Empleados</h3>

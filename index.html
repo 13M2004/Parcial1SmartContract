@@ -49,7 +49,11 @@
 
             if (usuarios[usuario] && password === '123') {
                 mostrarMensaje('Inicio de sesión exitoso', 'exito');
-                localStorage.setItem('usuarioActual', JSON.stringify(usuarios[usuario]));
+                const userData = {
+                    ...usuarios[usuario],
+                    id: usuario // Agregar el ID del usuario
+                };
+                localStorage.setItem('usuarioActual', JSON.stringify(userData));
                 
                 setTimeout(() => {
                     window.location.href = 'panel.html';

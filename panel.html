@@ -15,7 +15,7 @@
             </div>
             
             <!-- Menú Patrón -->
-            <div id="menuPatrono" class="menu-opciones">
+            <nav id="menuPatrono" class="menu-opciones">
                 <button class="menu-item" onclick="mostrarRegistroPago()">
                     <i class="fas fa-plus-circle"></i> Registro de Nuevo Pago
                 </button>
@@ -25,17 +25,17 @@
                 <button class="menu-item" onclick="mostrarPlanilla()">
                     <i class="fas fa-users"></i> Planilla
                 </button>
-            </div>
+            </nav>
 
             <!-- Menú Empleado -->
-            <div id="menuEmpleado" class="menu-opciones">
+            <nav id="menuEmpleado" class="menu-opciones">
                 <button class="menu-item" onclick="mostrarHistorialEmpleado()">
                     <i class="fas fa-history"></i> Mi Historial de Pagos
                 </button>
                 <button class="menu-item" onclick="mostrarPlanillaEmpleado()">
                     <i class="fas fa-users"></i> Planilla General
                 </button>
-            </div>
+            </nav>
 
             <button onclick="cerrarSesion()" class="btn-cerrar-sesion">
                 <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
@@ -47,10 +47,34 @@
                 <h2 id="tituloPagina">Bienvenido</h2>
                 <span id="nombreUsuario"></span>
             </header>
-            <div id="contenidoDinamico"></div>
+            <div id="contenidoDinamico" class="contenido-dinamico">
+                <!-- Aquí se mostrará el contenido de cada botón -->
+            </div>
         </main>
     </div>
 
+    <script>
+        // Verificar tipo de usuario y mostrar menú correspondiente
+        document.addEventListener('DOMContentLoaded', () => {
+            const usuario = JSON.parse(localStorage.getItem('usuarioActual'));
+            if (!usuario) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            document.getElementById('nombreUsuario').textContent = usuario.nombre;
+            document.getElementById('tituloPagina').textContent = `Bienvenido, ${usuario.nombre}`;
+
+            // Mostrar menú según tipo de usuario
+            if (usuario.tipo === 'patron') {
+                document.getElementById('menuPatrono').style.display = 'flex';
+                document.getElementById('menuEmpleado').style.display = 'none';
+            } else {
+                document.getElementById('menuPatrono').style.display = 'none';
+                document.getElementById('menuEmpleado').style.display = 'flex';
+            }
+        });
+    </script>
     <script src="aplicacion.js"></script>
 </body>
 </html>
